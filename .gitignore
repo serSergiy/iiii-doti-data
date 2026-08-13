@@ -1,0 +1,14 @@
+# Secrets. This repo is public — the STRATZ token must never land in a commit.
+.env
+.env.*
+*.token
+
+# Replay binaries. Never committed to the tree; a full TI is 6-10 GB compressed
+# and the extracted stats are <300 KB. See PLAN.md Phase 3.1.
+*.dem
+*.dem.bz2
+*.meta.bz2
+
+# Local ingest scratch
+.cache/
+node_modules/

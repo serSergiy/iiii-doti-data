@@ -1,0 +1,42 @@
+{
+  "v": 1,
+  "generatedAt": "2026-08-13T16:36:57.464Z",
+  "leagueId": 19719,
+  "leagueName": "The International 2026",
+  "counts": {
+    "ok": 29,
+    "pending": 0,
+    "failed": 0,
+    "remade": 0,
+    "unparsed": 0
+  },
+  "matchCount": 29,
+  "rowCount": 290,
+  "seriesCount": 12,
+  "playerCount": 80,
+  "coverage": {
+    "kills": 1,
+    "deaths": 1,
+    "lastHits": 1,
+    "denies": 1,
+    "gpm": 1,
+    "towers": 1,
+    "obs": 1,
+    "camps": 1,
+    "runes": 1,
+    "sentries": 1,
+    "smokes": 1,
+    "teamfight": 1,
+    "stuns": 1,
+    "firstBlood": 1,
+    "roshan": 1,
+    "courier": 1,
+    "tormentorSelf": 1,
+    "tormentorTeam": 1,
+    "madstone": 1,
+    "lotus": 0,
+    "watcher": 0
+  },
+  "warningSample": [],
+  "warningCount": 0
+}

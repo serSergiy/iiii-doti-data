@@ -1,0 +1,320 @@
+[
+  {
+    "gameNo": 1,
+    "matchId": 8943267925,
+    "seriesId": 1130069,
+    "seriesType": 1,
+    "startTime": 1786615605,
+    "duration": 2690,
+    "radiantWin": true,
+    "radiantTeamId": 9247354,
+    "direTeamId": 9572001,
+    "cluster": 413,
+    "replaySalt": 1542941115,
+    "parsed": true,
+    "players": [
+      {
+        "accountId": 10366616,
+        "name": "Sneyking",
+        "heroId": 9,
+        "isRadiant": true,
+        "playerSlot": 0,
+        "laneRole": 1,
+        "positionEst": 5
+      },
+      {
+        "accountId": 100058342,
+        "name": "skiter",
+        "heroId": 73,
+        "isRadiant": true,
+        "playerSlot": 1,
+        "laneRole": 1,
+        "positionEst": 1
+      },
+      {
+        "accountId": 898455820,
+        "name": "Malr1ne",
+        "heroId": 59,
+        "isRadiant": true,
+        "playerSlot": 2,
+        "laneRole": 2,
+        "positionEst": 2
+      },
+      {
+        "accountId": 183719386,
+        "name": "AMMAR_THE_F",
+        "heroId": 96,
+        "isRadiant": true,
+        "playerSlot": 3,
+        "laneRole": 3,
+        "positionEst": 3
+      },
+      {
+        "accountId": 25907144,
+        "name": "Cr1t-",
+        "heroId": 79,
+        "isRadiant": true,
+        "playerSlot": 4,
+        "laneRole": 3,
+        "positionEst": 4
+      },
+      {
+        "accountId": 1044002267,
+        "name": "Satanic",
+        "heroId": 80,
+        "isRadiant": false,
+        "playerSlot": 128,
+        "laneRole": 1,
+        "positionEst": 1
+      },
+      {
+        "accountId": 195108598,
+        "name": "Noticed",
+        "heroId": 55,
+        "isRadiant": false,
+        "playerSlot": 129,
+        "laneRole": 3,
+        "positionEst": 3
+      },
+      {
+        "accountId": 106573901,
+        "name": "No[o]ne-",
+        "heroId": 47,
+        "isRadiant": false,
+        "playerSlot": 130,
+        "laneRole": 2,
+        "positionEst": 2
+      },
+      {
+        "accountId": 164199202,
+        "name": "9Class",
+        "heroId": 62,
+        "isRadiant": false,
+        "playerSlot": 131,
+        "laneRole": 3,
+        "positionEst": 4
+      },
+      {
+        "accountId": 73401082,
+        "name": "Dukalis",
+        "heroId": 105,
+        "isRadiant": false,
+        "playerSlot": 132,
+        "laneRole": 1,
+        "positionEst": 5
+      }
+    ]
+  },
+  {
+    "gameNo": 2,
+    "matchId": 8943364918,
+    "seriesId": 1130069,
+    "seriesType": 1,
+    "startTime": 1786620502,
+    "duration": 3075,
+    "radiantWin": false,
+    "radiantTeamId": 9247354,
+    "direTeamId": 9572001,
+    "cluster": 413,
+    "replaySalt": 1172685143,
+    "parsed": true,
+    "players": [
+      {
+        "accountId": 10366616,
+        "name": "Sneyking",
+        "heroId": 9,
+        "isRadiant": true,
+        "playerSlot": 0,
+        "laneRole": 1,
+        "positionEst": 5
+      },
+      {
+        "accountId": 100058342,
+        "name": "skiter",
+        "heroId": 21,
+        "isRadiant": true,
+        "playerSlot": 1,
+        "laneRole": 1,
+        "positionEst": 1
+      },
+      {
+        "accountId": 898455820,
+        "name": "Malr1ne",
+        "heroId": 15,
+        "isRadiant": true,
+        "playerSlot": 2,
+        "laneRole": 2,
+        "positionEst": 2
+      },
+      {
+        "accountId": 183719386,
+        "name": "AMMAR_THE_F",
+        "heroId": 96,
+        "isRadiant": true,
+        "playerSlot": 3,
+        "laneRole": 3,
+        "positionEst": 3
+      },
+      {
+        "accountId": 25907144,
+        "name": "Cr1t-",
+        "heroId": 58,
+        "isRadiant": true,
+        "playerSlot": 4,
+        "laneRole": 3,
+        "positionEst": 4
+      },
+      {
+        "accountId": 1044002267,
+        "name": "Satanic",
+        "heroId": 80,
+        "isRadiant": false,
+        "playerSlot": 128,
+        "laneRole": 1,
+        "positionEst": 1
+      },
+      {
+        "accountId": 195108598,
+        "name": "Noticed",
+        "heroId": 28,
+        "isRadiant": false,
+        "playerSlot": 129,
+        "laneRole": 3,
+        "positionEst": 3
+      },
+      {
+        "accountId": 106573901,
+        "name": "No[o]ne-",
+        "heroId": 106,
+        "isRadiant": false,
+        "playerSlot": 130,
+        "laneRole": 2,
+        "positionEst": 2
+      },
+      {
+        "accountId": 164199202,
+        "name": "9Class",
+        "heroId": 14,
+        "isRadiant": false,
+        "playerSlot": 131,
+        "laneRole": 3,
+        "positionEst": 4
+      },
+      {
+        "accountId": 73401082,
+        "name": "Dukalis",
+        "heroId": 123,
+        "isRadiant": false,
+        "playerSlot": 132,
+        "laneRole": 1,
+        "positionEst": 5
+      }
+    ]
+  },
+  {
+    "gameNo": 3,
+    "matchId": 8943477775,
+    "seriesId": 1130069,
+    "seriesType": 1,
+    "startTime": 1786625439,
+    "duration": 5678,
+    "radiantWin": true,
+    "radiantTeamId": 9572001,
+    "direTeamId": 9247354,
+    "cluster": 413,
+    "replaySalt": 2113524684,
+    "parsed": true,
+    "players": [
+      {
+        "accountId": 1044002267,
+        "name": "Satanic",
+        "heroId": 11,
+        "isRadiant": true,
+        "playerSlot": 0,
+        "laneRole": 1,
+        "positionEst": 1
+      },
+      {
+        "accountId": 195108598,
+        "name": "Noticed",
+        "heroId": 96,
+        "isRadiant": true,
+        "playerSlot": 1,
+        "laneRole": 3,
+        "positionEst": 3
+      },
+      {
+        "accountId": 106573901,
+        "name": "No[o]ne-",
+        "heroId": 106,
+        "isRadiant": true,
+        "playerSlot": 2,
+        "laneRole": 2,
+        "positionEst": 2
+      },
+      {
+        "accountId": 164199202,
+        "name": "9Class",
+        "heroId": 21,
+        "isRadiant": true,
+        "playerSlot": 3,
+        "laneRole": 3,
+        "positionEst": 4
+      },
+      {
+        "accountId": 73401082,
+        "name": "Dukalis",
+        "heroId": 103,
+        "isRadiant": true,
+        "playerSlot": 4,
+        "laneRole": 1,
+        "positionEst": 5
+      },
+      {
+        "accountId": 10366616,
+        "name": "Sneyking",
+        "heroId": 83,
+        "isRadiant": false,
+        "playerSlot": 128,
+        "laneRole": 1,
+        "positionEst": 5
+      },
+      {
+        "accountId": 100058342,
+        "name": "skiter",
+        "heroId": 56,
+        "isRadiant": false,
+        "playerSlot": 129,
+        "laneRole": 1,
+        "positionEst": 1
+      },
+      {
+        "accountId": 898455820,
+        "name": "Malr1ne",
+        "heroId": 107,
+        "isRadiant": false,
+        "playerSlot": 130,
+        "laneRole": 2,
+        "positionEst": 2
+      },
+      {
+        "accountId": 183719386,
+        "name": "AMMAR_THE_F",
+        "heroId": 36,
+        "isRadiant": false,
+        "playerSlot": 131,
+        "laneRole": 3,
+        "positionEst": 3
+      },
+      {
+        "accountId": 25907144,
+        "name": "Cr1t-",
+        "heroId": 26,
+        "isRadiant": false,
+        "playerSlot": 132,
+        "laneRole": 3,
+        "positionEst": 4
+      }
+    ]
+  }
+]

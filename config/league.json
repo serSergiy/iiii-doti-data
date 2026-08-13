@@ -1,0 +1,7 @@
+{
+  "leagueId": 19719,
+  "name": "The International 2026",
+  "tier": "premium",
+  "source": "OpenDota GET /api/leagues, probed 2026-08-13 — see docs/FINDINGS.md 0.5",
+  "note": "Not the qualifiers: 19838 SEA / 19839 NA / 19840 SA / 19841 EU / 19842 CN are separate leagues at tier 'excluded'."
+}

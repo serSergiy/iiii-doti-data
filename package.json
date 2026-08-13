@@ -1,0 +1,13 @@
+{
+  "name": "ti2026-fantasy-data",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "TI 2026 fantasy analytics — data ingest. Commits per-map fantasy stats to git; no server, no database.",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "ingest": "node scripts/ingest.mjs",
+    "ingest:dry": "node scripts/ingest.mjs --dry-run",
+    "test": "node --test \"test/**/*.test.mjs\""
+  }
+}
