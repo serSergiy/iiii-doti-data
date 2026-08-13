@@ -310,7 +310,71 @@ multiplicative with tier/trait; both framings assume a banner-level constant.
 > Not yet explained. Two banners is enough to see the pattern, not enough to derive the
 > rule. Banner 2's title was cropped out of the screenshot, which would have helped.
 
-### Coefficient status after two banners
+### Displayed percentages are FLOORED to the nearest 10 — and that retracts the table below
+
+A third banner supplied the decisive control: **the same player (Nisha), the same stat
+(towers), at a different displayed percentage.**
+
+```
+banner 1   270%  ->  3868.13     /2.70 /352  =  4.0700
+banner 3   250%  ->  3520.00     /2.50 /352  =  4.0000   <- exactly 4
+```
+
+If Nisha killed 4 towers in both, banner 1's true multiplier is `3868.13 / (4 x 352)` =
+**274.725%**, displayed as **270%**. So the client floors the percentage to the nearest 10.
+
+**This invalidates the "REJECTED" verdicts in the next section.** They were computed by
+treating the displayed percentage as exact, which makes any true multiplier of, say,
+274.7% look like a non-integer unit count. Re-solved as a *range* — units in
+`(score/((shown+10)/100)/coef, score/(shown/100)/coef]` — the rejections mostly dissolve:
+
+| Stat | Coef | Solved units | Was |
+|---|---|---|---|
+| runePickups | 141 | **38** (unique, true 321.60%) | "rejected" |
+| towerKills | 352 | **4** (unique, true 274.73%) | "rejected" |
+| lotuses | 176 | **11** (unique, true 172.36%) | "rejected" |
+| lotuses (banner 3) | 176 | **9** (unique, true 178.83%) | — |
+
+Only `teamfight` still has no solution at coefficient 2124 — but teamfight participation is
+a 0..1 *fraction*, so the integer/half-integer parity test does not apply to it at all.
+That is a false negative of the method, not evidence against the coefficient.
+
+**Lesson worth keeping:** never back-solve from a displayed percentage as if it were exact.
+Solve for the interval. The three coefficients that survived the original test did so only
+because their true multipliers happened to land exactly on a multiple of 10.
+
+### LOTUSES SOLVED: `famango + great_famango + greater_famango`
+
+```js
+lotus = item_uses.famango + item_uses.great_famango + item_uses.greater_famango
+```
+
+The Lotus Pool yields **Famangos**. The fantasy stat counts those item uses — it is not an
+objective event, which is exactly why every hunt for a "lotus" string in the combat log
+failed, and why the replay was never going to have it. **It was in OpenDota the whole time.**
+
+Confirmed under the tightest constraint available: **Aurora played exactly one series**, so
+the two counted maps are forced and there is no map-selection freedom to fit against.
+
+| Map | kaori | Mira | pair avg |
+|---|---|---|---|
+| 8943097729 | 7 | 9 | 8.0 |
+| 8943171995 | 1 | 1 | 1.0 |
+| | | **total** | **9.0** |
+
+And the client's emblem back-solves to exactly **9.0 units at coefficient 176** (true
+178.83%, floored to the displayed 170%). Coefficient 176 is confirmed, not rejected.
+
+`lotus` now ships at **100% coverage** (510 across 290 player-maps). `UNSOURCED` is down to
+`watcher` alone.
+
+> **Not fully closed.** Banner 1's support pair (Cr1t- + Sneyking) needs 11.0 and their best
+> available pair average is 5.5 — off by exactly 2x, which smells like a sum-vs-average or a
+> missing-maps issue. None of banner 1's support emblems reconcile against our data, so the
+> likeliest explanation is that its counted maps are not in the dataset. Aurora is the
+> stronger evidence because its map selection is forced; banner 1 remains unexplained.
+
+### Coefficient status after two banners — SUPERSEDED, see above
 
 Because the title acts on the emblem **sum**, each emblem's displayed score is raw and
 `score / (percent/100)` is a **coefficient-independent product** = `units × coef`. Where a

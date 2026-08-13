@@ -47,7 +47,22 @@ export const COLUMNS = [
 ];
 
 /** Stats we have no source for at all. Emitted as null, NEVER 0 — see note below. */
-export const UNSOURCED = ['lotus', 'watcher'];
+export const UNSOURCED = ['watcher'];
+
+/**
+ * ЗІБРАНО ЛОТУСІВ = famango + great_famango + greater_famango, from item_uses.
+ *
+ * The Lotus Pool yields Famangos, so the fantasy "lotuses collected" stat counts those
+ * item uses — it is not a separate objective event, which is why it appears nowhere in the
+ * replay combat log and why every earlier hunt for a "lotus" string failed.
+ *
+ * Confirmed against a real in-client banner under the tightest available constraint:
+ * Aurora played exactly one series, so the two counted maps are forced with no selection
+ * freedom to fit against. kaori+Mira give (7+9)/2 + (1+1)/2 = 9.0, and the client's emblem
+ * back-solves to exactly 9.0 units at coefficient 176. See docs/FINDINGS.md.
+ */
+const LOTUS_ITEMS = ['famango', 'great_famango', 'greater_famango'];
+const lotuses = (p) => LOTUS_ITEMS.reduce((a, k) => a + itemUses(p, k), 0);
 
 /**
  * Stats whose mapping is real but whose exact definition is unvalidated against a real
@@ -55,6 +70,7 @@ export const UNSOURCED = ['lotus', 'watcher'];
  * settled. See docs/FINDINGS.md 0.2.
  */
 export const UNVALIDATED = {
+  lotus: 'item_uses famango+great+greater. Confirmed exactly on one forced-map banner (Aurora); a second banner did not reconcile — see docs/FINDINGS.md',
   madstone: 'item_uses.madstone_bundle — leading candidate for Безумруди, magnitude unconfirmed',
   smokes: 'item_uses.smoke_of_deceit — ran 1.4-4.6x high vs an independent oracle in prior art; the real stat may only count smokes used in a kill',
   tormentorSelf: 'credits the last hitter; the game is believed to credit all participants — compare with tormentorTeam',
@@ -190,9 +206,9 @@ export function deriveMatch(raw, { rosters = {}, gameNo = null } = {}) {
       torm.bySlot.get(p.player_slot) ?? 0,
       p.isRadiant ? torm.bySide.radiant : torm.bySide.dire,
       itemUses(p, 'madstone_bundle'),
+      lotuses(p),
       // null, never 0. The spec's edge cases require "no data" to be distinguishable
       // from "played and scored zero", and baking in 0 makes that unrecoverable.
-      null,
       null,
     ]);
   }

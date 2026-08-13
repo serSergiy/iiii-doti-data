@@ -1,0 +1,45 @@
+{
+ "schema": "ti2026-banner-observation/1",
+ "capturedAt": "2026-08-13",
+ "source": "in-client screenshot, manually transcribed. Group stage, roster locked.",
+ "player": "meow",
+ "title": { "prefix": "Лазурний", "suffix": "Вирішайло" },
+ "format": "group",
+ "roles": {
+  "core": {
+   "label": "ОСНОВА", "players": ["Satanic", "Noticed"],
+   "emblems": [
+    { "slot": 1, "color": "red",   "stat": "creepScore", "statUk": "РАХУНОК КРІПІВ", "percent": 190, "score": 8804.85 },
+    { "slot": 2, "color": "green", "stat": "teamfight",  "statUk": "КОМАНДНІ БОЇ",   "percent": 320, "score": 7687.26 },
+    { "slot": 3, "color": "red",   "stat": "gpmX2",      "statUk": "33Х",            "percent": 240, "score": 6512.21 }
+   ],
+   "emblemSum": 23004.32, "observedTotal": 29216.52, "delta": 6212.20, "impliedMultiplier": 1.270048
+  },
+  "mid": {
+   "label": "ЦЕНТР", "players": ["Nisha"],
+   "emblems": [
+    { "slot": 1, "color": "red",   "stat": "towerKills", "statUk": "ЗНИЩЕННЯ ВЕЖ",     "percent": 250, "score": 3520.00 },
+    { "slot": 2, "color": "blue",  "stat": "smokesUsed", "statUk": "ВИКОРИСТАНО ДИМІВ", "percent": 220, "score": 0 },
+    { "slot": 3, "color": "green", "stat": "tormentor",  "statUk": "УБИТО МУЧИТЕЛІВ",   "percent": 250, "score": 4395.00 }
+   ],
+   "emblemSum": 7915.00, "observedTotal": 7915.00, "delta": 0, "impliedMultiplier": 1.0
+  },
+  "support": {
+   "label": "ПІДТРИМКА", "players": ["kaori", "Mira"],
+   "emblems": [
+    { "slot": 1, "color": "blue",  "stat": "lotuses",   "statUk": "ЗІБРАНО ЛОТУСІВ",  "percent": 170, "score": 2832.68 },
+    { "slot": 2, "color": "green", "stat": "stuns",     "statUk": "ПРИГОЛОМШЕННЯ",    "percent": 280, "score": 1383.26 },
+    { "slot": 3, "color": "blue",  "stat": "obsPlaced", "statUk": "ОГЛЯДОВИХ ВАРДІВ", "percent": 200, "score": 4066.92 }
+   ],
+   "emblemSum": 8282.86, "observedTotal": 12619.13, "delta": 4336.27, "impliedMultiplier": 1.523511
+  }
+ },
+ "observedGrandTotal": 49750.66,
+ "roleTotalSum": 49750.65,
+ "grandDelta": -0.01,
+ "notes": [
+  "DECISIVE: same player (Nisha) and same stat (towers) as banner 1, at a different percentage. 3520.00/2.50/352 = exactly 4 towers, so banner 1's 3868.13 at '270%' implies a true 274.725%. Displayed percentages are FLOORED to the nearest 10.",
+  "Aurora (kaori+Mira) played exactly ONE series, so the two counted maps are forced — which is what makes the lotus mapping evidence rather than a fit.",
+  "Mid is x1.000000 exact for the third consecutive banner."
+ ]
+}

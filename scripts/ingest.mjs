@@ -49,7 +49,39 @@ function main() {
   return run(league, rosters);
 }
 
+/**
+ * Recompute every per-match file from data/raw, with no network at all.
+ *
+ * Needed because the per-match files cache their derived rows, and the diff deliberately
+ * skips anything already 'ok' — so a change to derive.mjs would otherwise never reach the
+ * committed data. This is the payoff for keeping the trimmed raw payloads: a derivation
+ * fix is replayable over the whole tournament in seconds, without refetching anything and
+ * without depending on replays that may have expired.
+ */
+function rederive(rosters) {
+  const files = fs.readdirSync(RAW).filter((f) => f.endsWith('.json.gz'));
+  console.log(`re-deriving ${files.length} matches from data/raw (no network)`);
+  let changed = 0;
+  for (const f of files) {
+    const raw = JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(RAW, f))).toString());
+    const { match, rows } = deriveMatch(raw, { rosters });
+    const file = path.join(MATCHES, `${match.matchId}.json`);
+    const prior = readJson(file) ?? {};
+    const next = {
+      ...match,
+      attempts: prior.attempts ?? 1,
+      lastAttempt: prior.lastAttempt ?? new Date().toISOString(),
+      lastError: null,
+      rows,
+    };
+    if (JSON.stringify(prior) !== JSON.stringify(next)) { changed++; }
+    fs.writeFileSync(file, JSON.stringify(next, null, 1));
+  }
+  console.log(`  ${changed} match files changed`);
+}
+
 async function run(league, rosters) {
+  if (has('--rederive')) { rederive(rosters); writeAggregate(league, []); return; }
   console.log(`league ${league.leagueId} (${league.name})`);
 
   const listing = await listLeagueMatches(league.leagueId);
