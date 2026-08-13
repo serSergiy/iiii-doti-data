@@ -19,6 +19,7 @@ import zlib from 'node:zlib';
 import { listLeagueMatches, getMatch } from './sources/opendota.mjs';
 import { deriveMatch, numberSeriesGames, COLUMNS, SCHEMA_VERSION, UNSOURCED, UNVALIDATED } from './derive.mjs';
 import { trimMatch } from './lib/trim.mjs';
+import { writeIfChanged } from './lib/write-if-changed.mjs';
 
 const ROOT = path.resolve(import.meta.dirname, '..');
 const DATA = path.join(ROOT, 'data');
@@ -160,7 +161,7 @@ function writeAggregate(league, warnings) {
     matches: matchMap,
     rows,
   };
-  fs.writeFileSync(path.join(DATA, 'stats.json'), JSON.stringify(stats));
+  const statsChanged = writeIfChanged(path.join(DATA, 'stats.json'), stats);
 
   const meta = {
     v: SCHEMA_VERSION,
@@ -176,13 +177,14 @@ function writeAggregate(league, warnings) {
     warningSample: warnings.slice(0, 20),
     warningCount: warnings.length,
   };
-  fs.writeFileSync(path.join(DATA, 'meta.json'), JSON.stringify(meta, null, 2));
+  const metaChanged = writeIfChanged(path.join(DATA, 'meta.json'), meta, true);
 
   const kb = (p) => (fs.statSync(p).size / 1024).toFixed(1);
   console.log(`\n  data/stats.json  ${kb(path.join(DATA, 'stats.json'))} KB`);
   console.log(`  matches ${meta.matchCount}, series ${meta.seriesCount}, rows ${meta.rowCount}, players ${meta.playerCount}`);
   console.log(`  status: ${JSON.stringify(counts)}`);
   if (warnings.length) console.log(`  warnings: ${warnings.length} (sample in data/meta.json)`);
+  console.log(statsChanged || metaChanged ? '  aggregate updated' : '  aggregate unchanged — nothing to commit');
 }
 
 await main();
