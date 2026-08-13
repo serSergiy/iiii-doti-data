@@ -62,55 +62,97 @@ for (const f of fs.readdirSync(RAW)) {
 }
 
 const obs = JSON.parse(fs.readFileSync(process.argv[2] ?? 'test/fixtures/banner-observation-mrmorale.json', 'utf8'));
-console.log(`banner: ${obs.player}   title: ${obs.title?.prefix ?? '?'} ${obs.title?.suffix ?? '?'}\n`);
+console.log(`banner: ${obs.player}   title: ${obs.title?.prefix ?? '?'} ${obs.title?.suffix ?? '?'}`);
+console.log('Emblem values are RAW (pre-title): the title acts on the emblem SUM, so a\n' +
+            'missing title does not block calibrating the emblems themselves.\n');
 
-const role = obs.roles.mid;
-const name = role.players[0];
-const maps = byPlayer.get(name) ?? [];
-console.log(`MID — ${name}: ${maps.length} maps in dataset`);
-console.log(`  emblem sum ${role.emblemSum} vs client total ${role.observedTotal} -> x${role.impliedMultiplier}\n`);
-
-// Candidate counted-map sets: the best 2 maps within each single series.
-const series = new Map();
-for (const m of maps) {
-  if (!series.has(m.seriesId)) series.set(m.seriesId, []);
-  series.get(m.seriesId).push(m);
-}
-
-const pairs = [];
-for (const [sid, ms] of series) {
-  for (let i = 0; i < ms.length; i++) {
-    for (let j = i + 1; j < ms.length; j++) pairs.push({ sid, set: [ms[i], ms[j]] });
+/**
+ * Candidate counted-map sets for a role: the best 2 maps within a single series.
+ * For a pair the two players are on the same team and play the same maps, so the sets are
+ * built from map ids and each map contributes the AVERAGE of the pair.
+ */
+function candidates(names) {
+  const perPlayer = names.map((n) => byPlayer.get(n) ?? []);
+  if (!perPlayer[0].length) return [];
+  const bySeries = new Map();
+  for (const m of perPlayer[0]) {
+    if (!bySeries.has(m.seriesId)) bySeries.set(m.seriesId, []);
+    bySeries.get(m.seriesId).push(m.matchId);
   }
-  if (ms.length === 1) pairs.push({ sid, set: [ms[0]] });
+  const out = [];
+  for (const [sid, ids] of bySeries) {
+    for (let i = 0; i < ids.length; i++)
+      for (let j = i + 1; j < ids.length; j++) out.push({ sid, ids: [ids[i], ids[j]] });
+    if (ids.length === 1) out.push({ sid, ids: [ids[0]] });
+  }
+  return out;
 }
 
-for (const e of role.emblems) {
-  const get = STAT[e.stat];
-  console.log(`  ${e.statUk}  (${e.stat})  ${e.percent}%  -> ${e.score}`);
-  if (!get || COEF[e.stat] == null) { console.log('     no mapping/coefficient — skipped\n'); continue; }
-  const raw = get(maps[0]?.p);
-  if (raw === null) { console.log('     stat has no source — skipped\n'); continue; }
+/** Value of a stat over a candidate map set: sum over maps of the pair average. */
+function valueOf(names, ids, get) {
+  let total = 0;
+  for (const id of ids) {
+    let sum = 0, n = 0;
+    for (const nm of names) {
+      const rec = (byPlayer.get(nm) ?? []).find((m) => m.matchId === id);
+      if (rec) { sum += get(rec.p); n++; }
+    }
+    if (!n) return null;
+    total += sum / n; // "role score = average of both players on the role"
+  }
+  return total;
+}
 
-  // What raw total the client's number implies at the displayed percentage.
-  const implied = e.score / (e.percent / 100) / COEF[e.stat];
-  console.log(`     implied raw total = ${implied.toFixed(4)}`);
+for (const [rid, role] of Object.entries(obs.roles)) {
+  const names = role.players;
+  console.log(`${role.label} — ${names.join(' + ')}   (x${role.impliedMultiplier} on the sum)`);
+  const cands = candidates(names);
+  if (!cands.length) { console.log('   no maps in dataset\n'); continue; }
 
-  let best = null;
-  for (const c of pairs) {
-    const total = c.set.reduce((a, m) => a + get(m.p), 0);
-    const err = Math.abs(total - implied);
-    if (!best || err < best.err) best = { ...c, total, err };
-    if (err < 0.02) {
-      // Re-derive the multiplier from the integer total: the displayed % is rounded,
-      // so an exact stat match is stronger evidence than an exact % match.
-      const mult = e.score / (total * COEF[e.stat]);
-      console.log(`     MATCH  maps ${c.set.map((m) => m.matchId).join(' + ')} (series ${c.sid})`);
-      console.log(`            stat total ${total}  ->  implied multiplier ${(mult * 100).toFixed(3)}%  (client shows ${e.percent}%)`);
+  const agreed = new Map(); // candidate key -> how many emblems it reproduces
+  const lines = [];
+
+  for (const e of role.emblems) {
+    const get = STAT[e.stat];
+    const coef = COEF[e.stat];
+    if (!get || coef == null || get({}) === null) {
+      lines.push(`   ${e.statUk} (${e.stat}) ${e.percent}% -> ${e.score}   [no source — solved below]`);
+      continue;
+    }
+    const implied = e.score / (e.percent / 100) / coef;
+    let hit = null, best = null;
+    for (const c of cands) {
+      const v = valueOf(names, c.ids, get);
+      if (v == null) continue;
+      const err = Math.abs(v - implied);
+      if (!best || err < best.err) best = { c, v, err };
+      if (err < 0.02) { hit = { c, v }; agreed.set(c.ids.join('+'), (agreed.get(c.ids.join('+')) ?? 0) + 1); }
+    }
+    if (hit) {
+      lines.push(`   ${e.statUk} (${e.stat}) ${e.percent}% -> ${e.score}`);
+      lines.push(`      MATCH ${hit.c.ids.join(' + ')} (series ${hit.c.sid})  stat=${hit.v}  coef=${coef}`);
+    } else {
+      lines.push(`   ${e.statUk} (${e.stat}) ${e.percent}% -> ${e.score}   implied raw ${implied.toFixed(4)}`);
+      lines.push(`      no match. closest ${best.c.ids.join(' + ')} = ${best.v} (off ${best.err.toFixed(3)})`);
+      // If the maps are known from other emblems, the coefficient is the unknown.
+      if (best) lines.push(`      coef that would fit closest set: ${(e.score / (e.percent / 100) / best.v).toFixed(4)}`);
     }
   }
-  if (best && best.err >= 0.02) {
-    console.log(`     no exact match. closest: ${best.set.map((m) => m.matchId).join(' + ')} total=${best.total} (off by ${best.err.toFixed(3)})`);
+  console.log(lines.join('\n'));
+
+  // Whichever map set the *known* emblems agree on is the counted set. Use it to solve
+  // the unsourced emblems — this is the only way to get a lotus number at all.
+  const consensus = [...agreed.entries()].sort((a, b) => b[1] - a[1])[0];
+  if (consensus) {
+    const ids = consensus[0].split('+').map(Number);
+    console.log(`   counted maps (agreed by ${consensus[1]} emblem(s)): ${ids.join(' + ')}`);
+    for (const e of role.emblems) {
+      const get = STAT[e.stat];
+      if (get && COEF[e.stat] != null && get({}) !== null) continue;
+      const impliedAtCoef = COEF[e.stat] ? e.score / (e.percent / 100) / COEF[e.stat] : null;
+      console.log(`   SOLVE ${e.statUk}: raw x coef = ${(e.score / (e.percent / 100)).toFixed(4)}` +
+        (impliedAtCoef != null ? `   -> ${impliedAtCoef.toFixed(4)} units at coef ${COEF[e.stat]}` : ''));
+    }
   }
   console.log('');
 }

@@ -310,6 +310,52 @@ multiplicative with tier/trait; both framings assume a banner-level constant.
 > Not yet explained. Two banners is enough to see the pattern, not enough to derive the
 > rule. Banner 2's title was cropped out of the screenshot, which would have helped.
 
+### Coefficient status after two banners
+
+Because the title acts on the emblem **sum**, each emblem's displayed score is raw and
+`score / (percent/100)` is a **coefficient-independent product** = `units × coef`. Where a
+role is solo the unit count must be an **integer**; where it is a pair it must be a
+**half-integer**, since the role score is the average of two players. That parity test
+alone convicts or acquits a coefficient without knowing which maps counted.
+
+| Stat | Coef | Units implied | Parity | Verdict |
+|---|---|---|---|---|
+| creepScore | 3 | **1303.0000** (solo gpk~) | integer | **CONFIRMED** |
+| stuns | 10 | **86.0007** (solo gpk~) | float stat, matches maps exactly | **CONFIRMED** |
+| kills | 107 | **12.5000** (pair Pure+33) | half-integer | **CONFIRMED** |
+| runePickups | 141 | 38.1900 (**solo** Nisha) | not integer | **REJECTED** |
+| towerKills | 352 | 4.0700 (**solo** Nisha) | not integer | **REJECTED** |
+| obsPlaced | 117 | 28.5600 / 23.0500 (pairs) | not half-integer | **REJECTED** |
+| tormentor | 879 | 2.7100 / 0.2675 (pairs) | not half-integer | **REJECTED** |
+| **lotuses** | 176 | 11.1525 (pair) | not half-integer | **REJECTED** |
+
+The solo rejections are the strongest: Nisha is one player, so 38.19 runes and 4.07 towers
+are impossible at any map selection. Those two coefficients are simply wrong — or
+OpenDota's `rune_pickups` is not the quantity the game counts (its own `runes` map sums to
+a different number than `rune_pickups` on the same player, so this is live).
+
+**The model is not in doubt — three emblems reproduce to the cent.** What is in doubt is
+the battlepass.ru coefficient table, which was always flagged unofficial. It is right for
+creeps, stuns and kills, and wrong or mis-mapped for the rest.
+
+### Lotuses: cannot be confirmed, and 176 is probably wrong
+
+Asked directly whether the support lotus number can be confirmed: **no.** There is no lotus
+source anywhere — not the APIs, not the combat log — so the only fact available is the
+product:
+
+```
+ЗІБРАНО ЛОТУСІВ  170%  ->  3336.83     raw x coef = 1962.84
+```
+
+With the unofficial coefficient 176 that is 11.1525 lotuses. For a *pair* that must be a
+half-integer, and it is not — so **176 is inconsistent with the pair-average model**, which
+is itself confirmed by the exact kills result. Candidate coefficients that would give clean
+counts: 178.44 (11 lotuses), 170.68 (11.5), 163.57 (12).
+
+Resolving this needs one of the two unknowns supplied independently: either a lotus count
+from the client, or the true coefficient. Nothing in the current pipeline can supply either.
+
 ### ЗАХОПЛЕНО СПОГЛЯДАЧІВ: mapping RULED OUT, not resolved
 
 gpk~'s third emblem reads **0.00** at 240%. Because the counted maps are now proven, any
