@@ -1,0 +1,57 @@
+{
+ "schema": "ti2026-banner-observation/1",
+ "capturedAt": "2026-08-13",
+ "source": "in-client screenshot, manually transcribed",
+ "player": "serSergiy",
+ "title": { "prefix": "Потойбічний", "suffix": "Вирішайло" },
+ "format": "group",
+ "roles": {
+  "core": {
+   "label": "ОСНОВА",
+   "players": ["AMMAR_THE_F", "skiter"],
+   "emblems": [
+    { "slot": 1, "color": "red",   "stat": "creepScore", "statUk": "РАХУНОК КРІПІВ",  "percent": 310, "score": 16171.03 },
+    { "slot": 2, "color": "green", "stat": "tormentor",  "statUk": "УБИТО МУЧИТЕЛІВ", "percent": 250, "score": 5955.23 },
+    { "slot": 3, "color": "red",   "stat": "gpmX2",      "statUk": "33Х",             "percent": 210, "score": 5768.62 }
+   ],
+   "emblemSum": 27894.88,
+   "observedTotal": 32410.68,
+   "delta": 4515.8,
+   "impliedMultiplier": 1.161886
+  },
+  "mid": {
+   "label": "ЦЕНТР",
+   "players": ["Nisha"],
+   "emblems": [
+    { "slot": 1, "color": "red",   "stat": "towerKills",  "statUk": "ЗНИЩЕННЯ ВЕЖ",     "percent": 270, "score": 3868.13 },
+    { "slot": 2, "color": "blue",  "stat": "runePickups", "statUk": "РУН ПІДІБРАНО",    "percent": 320, "score": 17231.33 },
+    { "slot": 3, "color": "green", "stat": "roshanKills", "statUk": "УБИВСТВА РОШАНА",  "percent": 240, "score": 0 }
+   ],
+   "emblemSum": 21099.46,
+   "observedTotal": 21099.46,
+   "delta": 0,
+   "impliedMultiplier": 1.0
+  },
+  "support": {
+   "label": "ПІДТРИМКА",
+   "players": ["Cr1t-", "Sneyking"],
+   "emblems": [
+    { "slot": 1, "color": "blue",  "stat": "obsPlaced", "statUk": "ОГЛЯДОВИХ ВАРДІВ", "percent": 270, "score": 9022.1 },
+    { "slot": 2, "color": "green", "stat": "tormentor", "statUk": "УБИТО МУЧИТЕЛІВ",  "percent": 200, "score": 470.27 },
+    { "slot": 3, "color": "blue",  "stat": "lotuses",   "statUk": "ЗІБРАНО ЛОТУСІВ",  "percent": 170, "score": 3336.83 }
+   ],
+   "emblemSum": 12829.2,
+   "observedTotal": 15384.11,
+   "delta": 2554.91,
+   "impliedMultiplier": 1.199148
+  }
+ },
+ "observedGrandTotal": 68894.24,
+ "roleTotalSum": 68894.25,
+ "grandDelta": -0.01,
+ "notes": [
+  "Mid sums EXACTLY (x1.000000). Core x1.161886, support x1.199148. Three different multipliers on one banner means the title is not a flat multiplier on the banner total — it is conditional per game, and the aggregate uplift varies with how many qualifying games each role played. Bears on spec open item 3.",
+  "Roshan 240% -> 0.00 confirms 'played, scored zero' is a real display state, distinct from 'no data'.",
+  "Support carries ЗІБРАНО ЛОТУСІВ, the one stat absent from both the APIs and the replay combat log."
+ ]
+}

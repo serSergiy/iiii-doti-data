@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ввід банера — калібрування TI 2026</title>
+<style>
+  :root{
+    --bg:#17140f; --panel:#2b2318; --panel2:#3a3021; --line:#5a4a30;
+    --ink:#f0e6d2; --dim:#b8a888; --gold:#d9c08a;
+    --red:#6d2b2b; --blue:#25406d; --green:#2c5a34;
+    --ok:#4caf50; --warn:#e0a030; --bad:#d05050;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:14px/1.5 "Segoe UI",system-ui,sans-serif;padding:18px}
+  h1{font-size:20px;margin:0 0 4px;color:var(--gold);font-weight:600}
+  .sub{color:var(--dim);font-size:13px;margin-bottom:18px}
+  .topbar{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;
+          background:var(--panel);border:1px solid var(--line);
+          border-radius:8px;padding:12px 14px;margin-bottom:16px}
+  label{display:block;font-size:11px;text-transform:uppercase;
+        letter-spacing:.06em;color:var(--dim);margin-bottom:3px}
+  input,select{background:#1d1811;color:var(--ink);border:1px solid var(--line);
+               border-radius:5px;padding:6px 8px;font:inherit}
+  input[type=number]{width:110px;text-align:right;font-variant-numeric:tabular-nums}
+  .board{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:16px}
+  .role{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px}
+  .role h2{margin:0 0 2px;font-size:16px;color:var(--gold);letter-spacing:.08em}
+  .players{display:flex;gap:8px;margin:8px 0 12px}
+  .players input{flex:1;min-width:0}
+  .slot{display:grid;grid-template-columns:1fr 74px 118px;gap:6px;
+        align-items:center;margin-bottom:7px;padding:7px;border-radius:6px}
+  .slot.red{background:var(--red)} .slot.blue{background:var(--blue)} .slot.green{background:var(--green)}
+  .slot select{width:100%;font-size:13px}
+  .totals{border-top:1px solid var(--line);margin-top:12px;padding-top:10px;
+          display:grid;grid-template-columns:1fr auto;gap:5px 10px;font-size:13px}
+  .totals .v{text-align:right;font-variant-numeric:tabular-nums}
+  .calc{color:var(--dim)}
+  .mult{font-weight:700}
+  .exact{color:var(--ok)} .off{color:var(--warn)}
+  .actions{margin:20px 0 10px;display:flex;gap:10px;flex-wrap:wrap}
+  button{background:var(--gold);color:#241d12;border:0;border-radius:6px;
+         padding:9px 16px;font:600 14px/1 inherit;cursor:pointer}
+  button.ghost{background:transparent;color:var(--gold);border:1px solid var(--line)}
+  textarea{width:100%;height:300px;background:#100d09;color:#cfe6cf;
+           border:1px solid var(--line);border-radius:8px;padding:12px;
+           font:12px/1.5 ui-monospace,Consolas,monospace}
+  .grand{background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+         padding:12px 14px;margin-top:16px;display:flex;gap:22px;
+         flex-wrap:wrap;align-items:center}
+  .grand b{font-size:17px;font-variant-numeric:tabular-nums}
+  .note{color:var(--dim);font-size:12px;margin-top:6px}
+</style>
+</head>
+<body>
+
+<h1>Ввід банера — калібрування</h1>
+<div class="sub">Введіть те, що показує клієнт: емблему, відсоток і очки. Інструмент сам рахує
+  суму емблем, різницю з підсумком ролі та неявний множник — саме там ховається ефект титулу.</div>
+
+<div class="topbar">
+  <div><label>Гравець</label><input id="who" size="14" value="serSergiy"></div>
+  <div><label>Префікс</label><input id="prefix" size="16" value="Потойбічний"></div>
+  <div><label>Суфікс</label><input id="suffix" size="16" value="Вирішайло"></div>
+  <div><label>Формат</label>
+    <select id="format">
+      <option value="group">Групова (3 емблеми)</option>
+      <option value="playoff">Плейоф (5 емблем)</option>
+    </select>
+  </div>
+  <div><label>Підсумок у клієнті</label><input type="number" step="0.01" id="grandObserved" value="68894.24"></div>
+</div>
+
+<div class="board" id="board"></div>
+
+<div class="grand">
+  <span>Сума ролей: <b id="roleSum">—</b></span>
+  <span>У клієнті: <b id="grandEcho">—</b></span>
+  <span>Різниця: <b id="grandDelta">—</b></span>
+</div>
+
+<div class="actions">
+  <button onclick="exportJson()">Експорт JSON</button>
+  <button class="ghost" onclick="copyJson()">Копіювати</button>
+  <button class="ghost" onclick="download()">Завантажити файл</button>
+  <button class="ghost" onclick="document.getElementById('io').value='';">Очистити вивід</button>
+</div>
+<textarea id="io" placeholder="JSON з'явиться тут. Його ж можна вставити сюди й натиснути «Імпорт»."></textarea>
+<div class="actions"><button class="ghost" onclick="importJson()">Імпорт із поля вище</button></div>
+<div class="note">Схема: <code>ti2026-banner-observation/1</code>. Порожні слоти не експортуються.</div>
+
+<script>
+/* Stat catalogue. Ukrainian labels marked ✓ are read directly off a real client
+   screenshot (2026-08-13); the rest come from the in-game glossary reading in the
+   prior art and are best-guess wording until a screenshot confirms them.
+   Colour decides which slot a stat may occupy — it is fixed by role, never rerolled. */
+const STATS = [
+  {id:'kills',        uk:'УБИВСТВА',            color:'red'},
+  {id:'deaths',       uk:'СМЕРТІ',              color:'red'},
+  {id:'creepScore',   uk:'РАХУНОК КРІПІВ',      color:'red', seen:true},
+  {id:'gpmX2',        uk:'33Х',                 color:'red', seen:true},
+  {id:'madstone',     uk:'ЗІБРАНИЙ ЛЮТИТ',      color:'red'},
+  {id:'towerKills',   uk:'ЗНИЩЕННЯ ВЕЖ',        color:'red', seen:true},
+
+  {id:'obsPlaced',    uk:'ОГЛЯДОВИХ ВАРДІВ',    color:'blue', seen:true},
+  {id:'campsStacked', uk:'ЗАСКИРТОВАНІ ТАБОРИ', color:'blue'},
+  {id:'runePickups',  uk:'РУН ПІДІБРАНО',       color:'blue', seen:true},
+  {id:'watchers',     uk:'ЗАХОПЛЕНІ СПОГЛЯДАЧІ',color:'blue'},
+  {id:'lotuses',      uk:'ЗІБРАНО ЛОТУСІВ',     color:'blue', seen:true},
+  {id:'smokesUsed',   uk:'ВИКОРИСТАНО ДИМІВ',   color:'blue'},
+
+  {id:'teamfight',    uk:'УЧАСТЬ У БИТВАХ',     color:'green'},
+  {id:'stuns',        uk:'ПРИГОЛОМШЕННЯ',       color:'green'},
+  {id:'firstBlood',   uk:'ПЕРША КРОВ',          color:'green'},
+  {id:'tormentor',    uk:'УБИТО МУЧИТЕЛІВ',     color:'green', seen:true},
+  {id:'roshanKills',  uk:'УБИВСТВА РОШАНА',     color:'green', seen:true},
+  {id:'courierKills', uk:'УБИВСТВА КУРʼЄРІВ',   color:'green'},
+];
+
+/* Colour per slot is fixed by role. Group rows confirmed by the client screenshot;
+   playoff rows from the neighbouring project's play-off banner capture. */
+const PATTERN = {
+  group:   {core:['red','green','red'],            mid:['red','blue','green'],        support:['blue','green','blue']},
+  playoff: {core:['red','green','red','green','red'], mid:['red','blue','green','red','green'], support:['blue','green','blue','green','blue']},
+};
+
+const ROLES = [
+  {id:'core',    uk:'ОСНОВА',     players:['AMMAR_THE_F','skiter']},
+  {id:'mid',     uk:'ЦЕНТР',      players:['Nisha','']},
+  {id:'support', uk:'ПІДТРИМКА',  players:['Cr1t-','Sneyking']},
+];
+
+/* Prefilled from the client screenshot of 2026-08-13 so the first calibration run
+   needs no retyping. Overwrite freely — nothing here is load-bearing. */
+const SEED = {
+  core:    [['creepScore',310,16171.03],['tormentor',250,5955.23],['gpmX2',210,5768.62]],
+  mid:     [['towerKills',270,3868.13],['runePickups',320,17231.33],['roshanKills',240,0]],
+  support: [['obsPlaced',270,9022.10],['tormentor',200,470.27],['lotuses',170,3336.83]],
+};
+const SEED_TOTALS = {core:32410.68, mid:21099.46, support:15384.11};
+
+const fmt = n => n.toLocaleString('uk-UA',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+function build(){
+  const format = document.getElementById('format').value;
+  const board = document.getElementById('board');
+  board.innerHTML = '';
+  for (const role of ROLES){
+    const colors = PATTERN[format][role.id];
+    const el = document.createElement('div');
+    el.className = 'role';
+    el.innerHTML = `<h2>${role.uk}</h2>
+      <div class="players">
+        <input placeholder="гравець 1" value="${role.players[0]}" data-p="${role.id}-0">
+        <input placeholder="гравець 2" value="${role.players[1]}" data-p="${role.id}-1">
+      </div>` +
+      colors.map((c,i)=>{
+        const seed = (SEED[role.id]||[])[i];
+        const opts = STATS.filter(s=>s.color===c).map(s=>
+          `<option value="${s.id}"${seed&&seed[0]===s.id?' selected':''}>${s.uk}</option>`).join('');
+        return `<div class="slot ${c}">
+          <select data-r="${role.id}" data-i="${i}" data-f="stat"><option value="">— порожньо —</option>${opts}</select>
+          <input type="number" data-r="${role.id}" data-i="${i}" data-f="percent" step="1"
+                 placeholder="%" value="${seed?seed[1]:''}" style="width:100%">
+          <input type="number" data-r="${role.id}" data-i="${i}" data-f="score" step="0.01"
+                 placeholder="очки" value="${seed?seed[2]:''}" style="width:100%">
+        </div>`;
+      }).join('') +
+      `<div class="totals">
+         <span>Сума емблем</span><span class="v calc" id="sum-${role.id}">—</span>
+         <span>Очки в клієнті</span><span class="v"><input type="number" step="0.01"
+              data-r="${role.id}" data-f="observed" value="${SEED_TOTALS[role.id]??''}"></span>
+         <span>Різниця</span><span class="v calc" id="delta-${role.id}">—</span>
+         <span>Неявний множник</span><span class="v mult" id="mult-${role.id}">—</span>
+       </div>`;
+    board.appendChild(el);
+  }
+  recalc();
+}
+
+function readRole(id){
+  const slots = [...document.querySelectorAll(`[data-r="${id}"][data-f="stat"]`)].map(sel=>{
+    const i = sel.dataset.i;
+    const q = f => document.querySelector(`[data-r="${id}"][data-i="${i}"][data-f="${f}"]`);
+    const stat = sel.value;
+    if (!stat) return null;
+    const meta = STATS.find(s=>s.id===stat);
+    return {
+      slot:+i+1, color:meta.color, stat, statUk:meta.uk,
+      percent:parseFloat(q('percent').value)||0,
+      score:parseFloat(q('score').value)||0,
+    };
+  }).filter(Boolean);
+  const observed = parseFloat(document.querySelector(`[data-r="${id}"][data-f="observed"]`).value)||0;
+  const sum = slots.reduce((a,s)=>a+s.score,0);
+  return {slots, observed, sum, delta:observed-sum, mult: sum? observed/sum : null};
+}
+
+function recalc(){
+  let roleSum = 0;
+  for (const role of ROLES){
+    const r = readRole(role.id);
+    roleSum += r.observed;
+    document.getElementById('sum-'+role.id).textContent = fmt(r.sum);
+    document.getElementById('delta-'+role.id).textContent = fmt(r.delta);
+    const m = document.getElementById('mult-'+role.id);
+    // `continue`, not `return`: an empty role must not abort the remaining roles
+    // or the grand-total line below.
+    if (r.mult==null){ m.textContent='—'; m.className='v mult'; continue; }
+    const exact = Math.abs(r.delta) < 0.005;
+    m.textContent = '×'+r.mult.toFixed(6) + (exact?'  (точно)':'');
+    m.className = 'v mult ' + (exact?'exact':'off');
+  }
+  const g = parseFloat(document.getElementById('grandObserved').value)||0;
+  document.getElementById('roleSum').textContent = fmt(roleSum);
+  document.getElementById('grandEcho').textContent = fmt(g);
+  const d = g-roleSum;
+  const ge = document.getElementById('grandDelta');
+  ge.textContent = fmt(d);
+  ge.className = Math.abs(d)<0.02 ? 'exact' : 'off';
+}
+
+function collect(){
+  const roles = {};
+  for (const role of ROLES){
+    const r = readRole(role.id);
+    roles[role.id] = {
+      label: role.uk,
+      players: [0,1].map(i=>document.querySelector(`[data-p="${role.id}-${i}"]`).value).filter(Boolean),
+      emblems: r.slots,
+      emblemSum: +r.sum.toFixed(2),
+      observedTotal: r.observed,
+      delta: +r.delta.toFixed(2),
+      impliedMultiplier: r.mult==null?null:+r.mult.toFixed(6),
+    };
+  }
+  const roleSum = Object.values(roles).reduce((a,r)=>a+r.observedTotal,0);
+  const grand = parseFloat(document.getElementById('grandObserved').value)||0;
+  return {
+    schema:'ti2026-banner-observation/1',
+    capturedAt:new Date().toISOString(),
+    source:'in-client screenshot, manually transcribed',
+    player:document.getElementById('who').value,
+    title:{prefix:document.getElementById('prefix').value,
+           suffix:document.getElementById('suffix').value},
+    format:document.getElementById('format').value,
+    roles,
+    observedGrandTotal:grand,
+    roleTotalSum:+roleSum.toFixed(2),
+    grandDelta:+(grand-roleSum).toFixed(2),
+  };
+}
+
+function exportJson(){ document.getElementById('io').value = JSON.stringify(collect(),null,2); }
+function copyJson(){ exportJson(); navigator.clipboard.writeText(document.getElementById('io').value); }
+function download(){
+  exportJson();
+  const b = new Blob([document.getElementById('io').value],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(b);
+  a.download = 'banner-observation.json';
+  a.click();
+}
+function importJson(){
+  let d; try{ d = JSON.parse(document.getElementById('io').value); }
+  catch(e){ alert('Не JSON: '+e.message); return; }
+  document.getElementById('who').value = d.player ?? '';
+  document.getElementById('prefix').value = d.title?.prefix ?? '';
+  document.getElementById('suffix').value = d.title?.suffix ?? '';
+  document.getElementById('format').value = d.format ?? 'group';
+  document.getElementById('grandObserved').value = d.observedGrandTotal ?? '';
+  build();
+  for (const [rid,r] of Object.entries(d.roles ?? {})){
+    (r.players??[]).forEach((p,i)=>{ const el=document.querySelector(`[data-p="${rid}-${i}"]`); if(el) el.value=p; });
+    const obs = document.querySelector(`[data-r="${rid}"][data-f="observed"]`);
+    if (obs) obs.value = r.observedTotal ?? '';
+    (r.emblems??[]).forEach(e=>{
+      const i = e.slot-1;
+      const set=(f,v)=>{const el=document.querySelector(`[data-r="${rid}"][data-i="${i}"][data-f="${f}"]`); if(el) el.value=v;};
+      set('stat',e.stat); set('percent',e.percent); set('score',e.score);
+    });
+  }
+  recalc();
+}
+
+document.addEventListener('input', recalc);
+document.getElementById('format').addEventListener('change', build);
+build();
+</script>
+</body>
+</html>
