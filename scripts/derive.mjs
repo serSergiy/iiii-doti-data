@@ -157,6 +157,7 @@ export function deriveMatch(raw, { rosters = {}, gameNo = null } = {}) {
     replaySalt: raw.replay_salt ?? null,
     parsed: status !== 'unparsed' && status !== 'missing',
     status,
+    titleFlags: titleFlags(raw),
   };
 
   if (status !== 'ok') {
@@ -216,7 +217,42 @@ export function deriveMatch(raw, { rosters = {}, gameNo = null } = {}) {
   return { match, rows, warnings };
 }
 
-/** Assign gameNo within each series by start time. Mutates nothing. */
+/**
+ * Per-map flags for the suffix (Звання) conditions, from config/titles.json.
+ *
+ * These are OFFICIAL in-game values and conditions, unlike the emblem coefficients. The
+ * title is a per-GAME conditional multiplier on the role's emblem sum, which is why an
+ * observed banner's uplift differs per role and is exactly 1.0 when nothing qualifies.
+ *
+ * `lastPossibleGameOfSeries` is filled in by numberSeriesGames, since it needs to know how
+ * long the series ran. Note it means the last game the series COULD have reached, not the
+ * last one played: a Bo3 that ends 2-0 never reaches game 3, so Вирішайло never fires for
+ * it. That is confirmed — Nisha's 2-0 series is why the mid banner reads exactly x1.000000
+ * on every observed banner carrying that suffix.
+ */
+export function titleFlags(raw) {
+  const fb = (raw.objectives ?? []).find((o) => o.type === 'CHAT_MESSAGE_FIRSTBLOOD');
+  const fbTime = fb ? fb.time : null;
+  const dur = num(raw.duration);
+  return {
+    // Спритник +24%
+    durationUnder25min: dur > 0 && dur < 1500,
+    // Послушник Білованих Близнюків +9% — the horn is t=0, so pre-horn is a negative time
+    firstBloodBeforeHorn: fbTime != null && fbTime < 0,
+    // Терпеливець +23% — includes a game with no first blood at all
+    noFirstBloodBefore10min: fbTime == null || fbTime >= 600,
+    // Щасливчик +21% — AMBIGUOUS: which digit "ends in 8" refers to is unresolved,
+    // so both readings are emitted rather than one being guessed.
+    durationSecondsEndIn8: dur % 10 === 8,
+    durationDisplaySecondsEndIn8: (dur % 60) % 10 === 8,
+    // Вирішайло +16% — filled by numberSeriesGames
+    lastPossibleGameOfSeries: null,
+    // Кат +13% (fountain kills) is out of scope, and Страдник +23% needs the replay.
+    firstBloodTime: fbTime,
+  };
+}
+
+/** Assign gameNo within each series by start time, and resolve lastPossibleGameOfSeries. */
 export function numberSeriesGames(matches) {
   const bySeries = new Map();
   for (const m of matches) {
@@ -226,7 +262,15 @@ export function numberSeriesGames(matches) {
   }
   for (const games of bySeries.values()) {
     games.sort((a, b) => (a.startTime ?? 0) - (b.startTime ?? 0));
-    games.forEach((g, i) => { g.gameNo = i + 1; });
+    // seriesType 1 = Bo3, 2 = Bo5, 0 = Bo1. The last POSSIBLE game is that maximum, which
+    // a sweep never reaches — the whole point of the Вирішайло condition.
+    const maxGames = { 0: 1, 1: 3, 2: 5 }[games[0]?.seriesType] ?? games.length;
+    games.forEach((g, i) => {
+      g.gameNo = i + 1;
+      if (g.titleFlags) g.titleFlags.lastPossibleGameOfSeries = (i + 1) === maxGames;
+      g.seriesGamesPlayed = games.length;
+      g.seriesGamesPossible = maxGames;
+    });
   }
   return matches;
 }

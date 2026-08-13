@@ -1,0 +1,38 @@
+{
+  "_source": "In-client «ЗМІНИТИ ТИТУЛУВАННЯ» screen, transcribed 2026-08-13. These are OFFICIAL in-game values, unlike the emblem coefficients which remain reverse-engineered.",
+  "_model": "A title is prefix + suffix. Both are per-GAME conditional multipliers, not banner-level constants — which is why the observed uplift differs per role and is exactly 1.0 when nothing qualifies. The title applies to the emblem SUM of the role, per counted map.",
+
+  "prefixes": [
+    { "id": "crimson",     "uk": "Кармазиновий", "bonus": 0.06, "condition": "heroColor", "arg": ["red"],                    "conditionUk": "у грі за червоного героя" },
+    { "id": "azure",       "uk": "Лазурний",     "bonus": 0.11, "condition": "heroColor", "arg": ["blue"],                   "conditionUk": "у грі за синього героя" },
+    { "id": "emerald",     "uk": "Смарагдовий",  "bonus": 0.06, "condition": "heroColor", "arg": ["green"],                  "conditionUk": "у грі за зеленого героя" },
+    { "id": "royal",       "uk": "Королівський", "bonus": 0.10, "condition": "heroColor", "arg": ["purple"],                 "conditionUk": "у грі за пурпурового героя" },
+    { "id": "golden",      "uk": "Золотий",      "bonus": 0.08, "condition": "heroColor", "arg": ["yellow", "brown"],        "conditionUk": "у грі за жовтого чи коричневого героя" },
+    { "id": "elemental",   "uk": "Елементальний","bonus": 0.08, "condition": "heroTrait", "arg": ["water", "fire", "ice"],   "conditionUk": "у грі за водного, вогняного чи льодяного героя" },
+    { "id": "otherworldly","uk": "Потойбічний",  "bonus": 0.07, "condition": "heroTrait", "arg": ["undead", "demon", "spirit"], "conditionUk": "у грі за немертвого, демона чи духа" },
+    { "id": "heroic",      "uk": "Героїчний",    "bonus": 0.09, "condition": "heroTrait", "arg": ["cloak", "mask"],          "conditionUk": "у грі за героя із плащем чи маскою" }
+  ],
+
+  "_prefixNote": "EVERY prefix needs a hero->colour/trait pool that we do not have. The spec calls for extracting it from the Dota 2 client VPK (open item 6). Until then no prefix is computable, and a banner whose uplift depends on one cannot be fully reproduced.",
+
+  "suffixes": [
+    { "id": "sufferer",    "uk": "Страдник",                    "bonus": 0.23, "condition": "someonesDiedToTormentor", "conditionUk": "якщо хтось із гравців помре від мучителя",
+      "computable": "replay", "note": "combat log DEATH with attacker npc_dota_miniboss. Not in any API; we already parse the replays." },
+    { "id": "twinsAcolyte","uk": "Послушник Білованих Близнюків","bonus": 0.09, "condition": "firstBloodBeforeHorn",   "conditionUk": "якщо хтось із гравців проллє першу кров до звуку сурми",
+      "computable": "yes", "note": "first blood objective time < 0 (the horn is t=0, creeps spawn)." },
+    { "id": "patient",     "uk": "Терпеливець",                 "bonus": 0.23, "condition": "noFirstBloodBefore10min", "conditionUk": "якщо першу кров не пролито до 10 хвилини",
+      "computable": "yes", "note": "first blood time >= 600s, or no first blood at all." },
+    { "id": "unlucky",     "uk": "Нещасливець",                 "bonus": 0.06, "condition": "playerTeamLost",          "conditionUk": "якщо команда гравця програла",
+      "computable": "yes", "note": "per player: isRadiant !== radiant_win." },
+    { "id": "swift",       "uk": "Спритник",                    "bonus": 0.24, "condition": "durationUnder25min",      "conditionUk": "в іграх, які тривають менше ніж 25 хвилин",
+      "computable": "yes", "note": "duration < 1500s." },
+    { "id": "decider",     "uk": "Вирішайло",                   "bonus": 0.16, "condition": "lastPossibleGameOfSeries","conditionUk": "в останньому можливому матчі серії",
+      "computable": "yes", "note": "game 3 of a Bo3 / game 5 of a Bo5. NOT merely the last game PLAYED — a 2-0 sweep never reaches the last possible game, so this never fires for it." },
+    { "id": "lucky",       "uk": "Щасливчик",                   "bonus": 0.21, "condition": "durationEndsIn8",         "conditionUk": "якщо тривалість матчу завершується на 8",
+      "computable": "ambiguous", "note": "Which digit? Seconds ending in 8, or the displayed MM:SS last digit. Both are derivable from duration; the reading is the unknown." },
+    { "id": "executioner", "uk": "Кат",                         "bonus": 0.13, "condition": "killedAtOwnFountain",     "conditionUk": "якщо гравця вбито на власному фонтані",
+      "computable": "no", "note": "Fountain kills. Marked out of scope by the user; the spec also flags it uncomputable." }
+  ],
+
+  "_stacking": "Unresolved. Whether prefix and suffix add (1 + p + s) or multiply ((1+p)(1+s)) on a qualifying game is not yet determined; no observed banner has had both fire on a known map."
+}

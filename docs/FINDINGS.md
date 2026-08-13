@@ -310,6 +310,73 @@ multiplicative with tier/trait; both framings assume a banner-level constant.
 > Not yet explained. Two banners is enough to see the pattern, not enough to derive the
 > rule. Banner 2's title was cropped out of the screenshot, which would have helped.
 
+### Title values are now OFFICIAL — `config/titles.json`
+
+Transcribed from the in-client «ЗМІНИТИ ТИТУЛУВАННЯ» screen. Unlike the emblem
+coefficients, these are stated by the game.
+
+**Prefixes (Атрибути)** — all hero-pool conditional, per game: Кармазиновий +6% (red),
+Лазурний +11% (blue), Смарагдовий +6% (green), Королівський +10% (purple), Золотий +8%
+(yellow/brown), Елементальний +8% (water/fire/ice), Потойбічний +7% (undead/demon/spirit),
+Героїчний +9% (cloak/mask). **None is computable yet** — every one needs a hero→colour/trait
+pool that must come from the client VPK (spec open item 6).
+
+**Suffixes (Звання)** — per-game conditional, and mostly computable:
+
+| Suffix | Bonus | Condition | Computable |
+|---|---|---|---|
+| Вирішайло | +16% | last **possible** game of the series | **yes** |
+| Спритник | +24% | game under 25 minutes | **yes** |
+| Терпеливець | +23% | no first blood before 10:00 | **yes** |
+| Нещасливець | +6% | player's team lost | **yes** |
+| Послушник Біл. Близнюків | +9% | first blood before the horn | **yes** |
+| Щасливчик | +21% | duration "ends in 8" | ambiguous — which digit |
+| Страдник | +23% | someone dies to a tormentor | from replay |
+| Кат | +13% | killed at own fountain | no — out of scope |
+
+Every computable flag is now emitted per map in `data/matches/{id}.json` → `titleFlags`.
+Across the 29 maps: Вирішайло fires on 5, Терпеливець 1, Послушник 1, Спритник 0.
+
+### Вирішайло explains the x1.000000 mid — exactly
+
+The condition is the **last possible** game, not the last game *played*. A Bo3 that ends
+2-0 never reaches game 3, so the suffix can never fire for it.
+
+Nisha's counted series ran **2-0**. Both his maps are game 1 and 2 of a possible 3:
+
+```
+8943091110  game 1/2 (possible 3)  Вирішайло: false
+8943148045  game 2/2 (possible 3)  Вирішайло: false
+```
+
+Predicted role multiplier **x1.000000**; observed **x1.000000** on both banners carrying
+that suffix. That is the mid mystery closed.
+
+### But the title CANNOT explain the pair uplifts — open problem
+
+Banner 3's support is Aurora (kaori + Mira), who played **exactly one series, a 2-0 sweep**.
+So Вирішайло cannot fire on either map, and the only bonus available is the prefix
+Лазурний at **+11%**. Maximum achievable uplift: **x1.11**.
+
+**Observed: x1.523511.** Upstream confirms no further Aurora matches exist (29 matches
+total, unchanged), so this is not a stale-data artifact.
+
+The pattern across all three banners is sharp and unexplained:
+
+| | solo mid | pair core | pair support |
+|---|---|---|---|
+| Banner 1 | x1.000000 | x1.161886 | x1.199148 |
+| Banner 2 | x1.000000 | x1.322016 | x1.336835 |
+| Banner 3 | x1.000000 | x1.270048 | **x1.523511** |
+
+**Solo is always exactly 1.0; pairs are always >1.** That correlation, plus a magnitude the
+title table cannot reach, says the pair uplift is **not a title effect**. The leading
+hypothesis is that a pair's emblem display and its role total are computed over *different
+map selections* — e.g. the display shows one shared set while the total optimises per
+player — which would be identically 1.0 for a single player. Untested.
+
+Until this is resolved, **only solo-mid banners can be reproduced end to end.**
+
 ### Displayed percentages are FLOORED to the nearest 10 — and that retracts the table below
 
 A third banner supplied the decisive control: **the same player (Nisha), the same stat

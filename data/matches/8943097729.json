@@ -13,6 +13,15 @@
  "replaySalt": 1524262267,
  "parsed": true,
  "status": "ok",
+ "titleFlags": {
+  "durationUnder25min": false,
+  "firstBloodBeforeHorn": false,
+  "noFirstBloodBefore10min": false,
+  "durationSecondsEndIn8": false,
+  "durationDisplaySecondsEndIn8": false,
+  "lastPossibleGameOfSeries": null,
+  "firstBloodTime": 125
+ },
  "attempts": 1,
  "lastAttempt": "2026-08-13T16:36:34.806Z",
  "lastError": null,
