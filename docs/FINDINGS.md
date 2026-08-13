@@ -131,7 +131,71 @@ source for them.
 
 ---
 
-## Replay acquisition: **blocked, and not for the reason the spec expects**
+## CORRECTION (2026-08-13, later the same day): replays ARE downloadable
+
+The section below concluded replay download was blocked. **That was wrong**, and the error
+was mine: I tested `replay413.dota2.com.cn` with Node's `fetch`, which fails on that host
+in this environment, and treated one failing client as proof the host was unreachable.
+`curl` downloads from it fine.
+
+```
+http://replay413.valve.net/570/…      -> 403 Forbidden   (correct in the section below)
+http://replay413.dota2.com.cn/570/…   -> 200 OK          (works; Node fetch cannot, curl can)
+```
+
+All **29 replays downloaded, 3.1 GB**, every one verified. Two further surprises:
+
+- **The payload is zstd, not bzip2**, despite Valve still naming the file `.dem.bz2`.
+  Magic bytes are `28 b5 2f`; `bzip2` fails with "bad magic value". Decompressed, it is a
+  normal `PBDEMS2` Source 2 demo.
+- Replays are **74–195 MB** each, not the ~40 MB first estimated (that measurement was
+  taken against a file still being written).
+
+Parser toolchain: **manta v1.5.0**. v1.4.0 fails immediately on 2026 replays with
+`unable to find new baseline`. No Go toolchain is needed on the host — `scripts/parse-replays.sh`
+runs it in Docker.
+
+### What the replay recovers
+
+| Stat | Source | Status |
+|---|---|---|
+| **Watchers** | `ability_capture` combat-log events | **RECOVERED**, per hero |
+| Lamps | `ability_lamp_use` | Recovered — emitted so the API conflation is measurable |
+| **Madstones** | `item_madstone_bundle` ITEM events | **RECOVERED**, per hero |
+| Tormentor kills | `npc_dota_miniboss` DEATH, killer | Recovered (last hitter) |
+| Tormentor participation | heroes damaging a tormentor that then died | Recovered, **but see caveat** |
+| **Lotuses** | — | **NOT RECOVERABLE from the combat log.** No lotus pickup event exists; the only lotus strings are `item_lotus_orb`, an unrelated item. Would need entity-level work on `CDOTA_BaseNPC_LotusPool` |
+
+**Critical attribution gotcha:** use `attacker_name`, **not** `damage_source_name`. The
+latter is only meaningful for damage events and resolves to `dota_unknown` for every
+ability cast — which initially made it look as though capture/lamp/madstone events carried
+no player attribution at all. They do.
+
+### Cross-check results
+
+**Madstones agree exactly: 80/80 player-maps**, OpenDota `item_uses.madstone_bundle` vs the
+replay's own combat-log count. The two are measuring the same event. That does *not* prove
+the event is Безумруди — it proves the count is trustworthy, so the remaining question is
+purely one of naming, answerable against a real in-client score.
+
+**Watchers vs lamps: 45 vs 372** across the parsed maps. A source conflating them would
+overstate watchers by **9.3×**.
+
+> ⚠️ battlepass.ru reported the conflation as **~1.5×**, not 9.3×. That gap is unexplained
+> and matters: either they measured a different source, or `ability_capture` is not the
+> stat the game calls "watchers". **Do not treat the watcher mapping as settled** until a
+> real in-client score confirms it. The madstone agreement above is much stronger evidence
+> than this.
+
+**Tormentor participation is under-counted and should not be trusted yet.** The damager
+list came back with a single hero per tormentor kill, which is implausible for a real
+tormentor fight. The combat log's own assist list (`assist_players`) is empty for miniboss
+deaths, so participation has to be derived from damage events, and the current derivation
+is evidently missing most of them. Unresolved.
+
+---
+
+## Replay acquisition: superseded — see the correction above
 
 OpenDota supplies everything needed, on the match object:
 

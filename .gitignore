@@ -12,3 +12,10 @@
 # Local ingest scratch
 .cache/
 node_modules/
+
+# Downloaded replays (~40 MB each, ~1.2 GB total)
+replays/
+
+# Discovery scratch output
+tmp-*.txt
+tools/replay-parser/parse-bin
