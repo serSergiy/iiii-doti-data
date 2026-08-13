@@ -143,7 +143,32 @@ Two findings that were *not* anticipated:
 
 ---
 
-## Phase 1 — Ship ingest today (capture before correctness)
+## Phase 1 — Ship ingest today (capture before correctness) ✅ DONE 2026-08-13
+
+**Exit criterion met: a green scheduled run committed real TI maps.**
+Run [31722187607](https://github.com/serhii-zashchyk/iiii-doti-data/actions/runs/31722187607)
+committed `data: 29 matches, 290 rows`; the follow-up run correctly committed nothing.
+
+Live now:
+
+- <https://serhii-zashchyk.github.io/iiii-doti-data/data/stats.json> — 11.4 KB over the
+  wire, `Access-Control-Allow-Origin: *`, `Cache-Control: max-age=600` (as the spec predicted)
+- <https://serhii-zashchyk.github.io/iiii-doti-data/data/meta.json>
+
+29 matches / 12 series / 290 rows / 80 players. Every stat at 1.0 coverage except `lotus`
+and `watcher`, which are 0.0 by design and null by contract.
+
+Phase 2 landed alongside it rather than after: the contract (`derive.mjs`, `stats.json`)
+is frozen at `v1` and published, so **site-repo is unblocked now**.
+
+One bug found and fixed by shipping: `generatedAt` made every file differ on every run, so
+the first CI run committed identical data. On a 15-minute cron that is ~96 empty commits a
+day, which destroys the readable `git log` the storage design exists to provide. Fixed in
+`scripts/lib/write-if-changed.mjs`, with regression tests.
+
+---
+
+### Original Phase 1 plan, for reference
 
 Goal: by end of day, a workflow is committing TI match data on a schedule, with **no
 scoring engine and no normalization**. The spec's build order is right about this.

@@ -18,6 +18,17 @@ The scoring engine and the public UI live in a separate repo. This one only prod
 | `data/` | The output. See below. |
 | `test/fixtures/` | A complete Bo3 (series 1130069) for offline testing. |
 
+## Live data
+
+```
+https://serhii-zashchyk.github.io/iiii-doti-data/data/stats.json
+https://serhii-zashchyk.github.io/iiii-doti-data/data/meta.json
+```
+
+Served with `Access-Control-Allow-Origin: *`, so cross-origin `fetch()` from the site needs
+no configuration. Pages forces `Cache-Control: max-age=600` with no override — append
+`?t=${Date.now()}` for a manual refresh button.
+
 ## Output
 
 | file | what it is |
