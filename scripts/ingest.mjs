@@ -151,6 +151,26 @@ function writeAggregate(league, warnings) {
     coverage[c] = rows.length ? +(nonNull / rows.length).toFixed(3) : 0;
   });
 
+  // accountId -> { name, teamId }. Needed by any UI that lets a user pick players by
+  // name, and cheap: ~80 entries for a whole TI. Read back out of the raw payloads,
+  // which are the only place the names survive.
+  const players = {};
+  for (const f of fs.readdirSync(RAW)) {
+    let raw;
+    try { raw = JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(RAW, f))).toString()); }
+    catch { continue; }
+    for (const p of raw.players ?? []) {
+      if (p.account_id == null) continue;
+      const name = p.name || p.personaname;
+      if (!name) continue;
+      const prev = players[p.account_id];
+      players[p.account_id] = {
+        name,
+        teamId: (p.isRadiant ? raw.radiant_team_id : raw.dire_team_id) ?? prev?.teamId ?? null,
+      };
+    }
+  }
+
   const stats = {
     v: SCHEMA_VERSION,
     leagueId: league.leagueId,
@@ -158,6 +178,7 @@ function writeAggregate(league, warnings) {
     columns: COLUMNS,
     unsourced: UNSOURCED,
     unvalidated: UNVALIDATED,
+    players,
     matches: matchMap,
     rows,
   };

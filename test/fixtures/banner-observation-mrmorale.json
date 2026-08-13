@@ -1,0 +1,40 @@
+{
+ "schema": "ti2026-banner-observation/1",
+ "capturedAt": "2026-08-13",
+ "source": "in-client screenshot, manually transcribed. Title not visible in the crop.",
+ "player": "Mr.Morale",
+ "title": { "prefix": null, "suffix": null },
+ "format": "group",
+ "roles": {
+  "core": {
+   "label": "ОСНОВА", "players": ["Pure", "33"],
+   "emblems": [
+    { "slot": 1, "color": "red",   "stat": "kills", "statUk": "УБИВСТВА",       "percent": 130, "score": 1738.75 },
+    { "slot": 2, "color": "green", "stat": "stuns", "statUk": "ПРИГОЛОМШЕННЯ",  "percent": 190, "score": 1509.04 },
+    { "slot": 3, "color": "red",   "stat": "gpmX2", "statUk": "33Х",            "percent": 250, "score": 6244.37 }
+   ],
+   "emblemSum": 9492.16, "observedTotal": 12548.79, "delta": 3056.63, "impliedMultiplier": 1.322016
+  },
+  "mid": {
+   "label": "ЦЕНТР", "players": ["gpk~"],
+   "emblems": [
+    { "slot": 1, "color": "red",   "stat": "creepScore",        "statUk": "РАХУНОК КРІПІВ",         "percent": 320, "score": 12508.80 },
+    { "slot": 2, "color": "blue",  "stat": "sentriesCaptured",  "statUk": "ЗАХОПЛЕНО СПОГЛЯДАЧІВ",  "percent": 240, "score": 0 },
+    { "slot": 3, "color": "green", "stat": "stuns",             "statUk": "ПРИГОЛОМШЕННЯ",          "percent": 300, "score": 2580.02 }
+   ],
+   "emblemSum": 15088.82, "observedTotal": 15088.82, "delta": 0, "impliedMultiplier": 1.0
+  },
+  "support": {
+   "label": "ПІДТРИМКА", "players": ["zzq", "planet"],
+   "emblems": [
+    { "slot": 1, "color": "blue",  "stat": "obsPlaced",   "statUk": "ОГЛЯДОВИХ ВАРДІВ", "percent": 190, "score": 5124.01 },
+    { "slot": 2, "color": "green", "stat": "stuns",       "statUk": "ПРИГОЛОМШЕННЯ",    "percent": 220, "score": 1375.31 },
+    { "slot": 3, "color": "blue",  "stat": "runePickups", "statUk": "РУН ПІДІБРАНО",    "percent": 300, "score": 3161.92 }
+   ],
+   "emblemSum": 9661.24, "observedTotal": 12915.48, "delta": 3254.24, "impliedMultiplier": 1.336835
+  }
+ },
+ "observedGrandTotal": 40553.09,
+ "roleTotalSum": 40553.09,
+ "grandDelta": 0
+}

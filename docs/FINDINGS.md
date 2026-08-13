@@ -263,6 +263,74 @@ exactly where a rate-vs-total confusion in the scoring engine would show up.
 
 ---
 
+## Calibration against real in-client banners (2026-08-13)
+
+Two banners transcribed from client screenshots, in `test/fixtures/banner-observation-*.json`.
+Run `node scripts/calibrate.mjs <fixture>`.
+
+### The mid banner reproduces EXACTLY
+
+Banner 2 (Mr.Morale), ЦЕНТР = gpk~. Two independent emblems, both exact, from the **same
+two maps** (`8943202720` + `8943357930`, series 1130060):
+
+| Emblem | Raw total | × coef | × shown % | = | Client |
+|---|---|---|---|---|---|
+| РАХУНОК КРІПІВ | 1303 creeps | ×3 | ×3.20 | **12508.80** | 12508.80 |
+| ПРИГОЛОМШЕННЯ | 86.00068 s | ×10 | ×3.00 | **2580.02** | 2580.02 |
+
+This single result confirms, all at once:
+
+1. **Creep coefficient = 3** and **stun coefficient = 10** — the battlepass.ru table is
+   right at least here, and it was explicitly unofficial.
+2. **Displayed percentages are exact**, not rounded. 320% is 3.20.
+3. **Best 2 maps within ONE series**, not best 2 overall — gpk~'s highest-CS maps are not
+   the ones that counted.
+4. **All emblems on a banner share the same counted maps.** Creeps and stuns resolve to the
+   identical pair. This matches the neighbouring project's independent conclusion.
+5. **OpenDota's `stuns` IS the game's stun definition.** The spec warned it "likely ≠
+   game's"; it matches to five decimal places. That worry is retired.
+
+### The title is not a flat banner multiplier
+
+Σ emblems vs the client's role total, on both banners:
+
+| Role | Banner 1 (serSergiy) | Banner 2 (Mr.Morale) |
+|---|---|---|
+| ОСНОВА (pair) | ×1.161886 | ×1.322016 |
+| **ЦЕНТР (solo)** | **×1.000000 exact** | **×1.000000 exact** |
+| ПІДТРИМКА (pair) | ×1.199148 | ×1.336835 |
+
+Mid is exactly 1.000000 on both, while the two *pair* roles are >1 and differ from each
+other within the same banner. A flat title multiplier cannot produce that. Whatever the
+uplift is, it is **absent for a solo role and varies per pair role** — which is why mid is
+the clean calibration target and why the engine must not model prefix/suffix as a constant.
+Bears directly on spec open item 3, which asks whether prefix/suffix are additive or
+multiplicative with tier/trait; both framings assume a banner-level constant.
+
+> Not yet explained. Two banners is enough to see the pattern, not enough to derive the
+> rule. Banner 2's title was cropped out of the screenshot, which would have helped.
+
+### ЗАХОПЛЕНО СПОГЛЯДАЧІВ: mapping RULED OUT, not resolved
+
+gpk~'s third emblem reads **0.00** at 240%. Because the counted maps are now proven, any
+correct mapping must total exactly 0 across them. Measured over those two maps:
+
+| Candidate | Total | Verdict |
+|---|---|---|
+| observer_kills + sentry_kills (dewards) | 5 | ruled out |
+| observer_kills alone | 3 | ruled out |
+| sentry_kills alone | 2 | ruled out |
+| `ability_capture` (replay) | 2 | **ruled out** |
+| `ability_lamp_use` (replay) | 4 | ruled out |
+
+**This retracts the earlier claim that `ability_capture` recovers the watcher stat.**
+`ability_capture` is almost certainly *outpost* capture — which independently explains the
+8.2× vs battlepass.ru's 1.5× conflation ratio that did not reconcile. The real watcher
+stat remains unidentified, and a zero-valued emblem can only rule mappings out, never
+confirm one.
+
+---
+
 ## Net effect on the plan
 
 | Spec assumption | Reality |
