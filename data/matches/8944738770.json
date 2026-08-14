@@ -1,0 +1,29 @@
+{
+ "matchId": 8944738770,
+ "leagueId": 19719,
+ "seriesId": 1130324,
+ "seriesType": 1,
+ "gameNo": null,
+ "startTime": 1786696586,
+ "duration": 2887,
+ "radiantWin": true,
+ "radiantTeamId": 8261500,
+ "direTeamId": 10149530,
+ "cluster": 413,
+ "replaySalt": 1313816272,
+ "parsed": false,
+ "status": "unparsed",
+ "titleFlags": {
+  "durationUnder25min": false,
+  "firstBloodBeforeHorn": false,
+  "noFirstBloodBefore10min": true,
+  "durationSecondsEndIn8": false,
+  "durationDisplaySecondsEndIn8": false,
+  "lastPossibleGameOfSeries": null,
+  "firstBloodTime": null
+ },
+ "attempts": 1,
+ "lastAttempt": "2026-08-14T09:42:04.891Z",
+ "lastError": null,
+ "rows": []
+}
