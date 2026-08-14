@@ -352,6 +352,35 @@ Nisha's counted series ran **2-0**. Both his maps are game 1 and 2 of a possible
 Predicted role multiplier **x1.000000**; observed **x1.000000** on both banners carrying
 that suffix. That is the mid mystery closed.
 
+### Entity-level attempt on lotuses and watchers — partial
+
+Following the user's two corrections (lotuses are *picked*, not eaten, and merge upward;
+watchers are *clicked* but not taken until the channel completes), the combat log was
+exhausted and the search moved to entity state.
+
+**Settled by this pass:**
+
+- `ability_lamp_use` targets **`npc_dota_lantern`** — it is the watcher interaction.
+- `ability_capture` targets **`#DOTA_OutpostName_North`** — it is **outposts**, definitively
+  not watchers. That mapping is now closed, not merely doubted.
+- Both famango items and lanterns exist as entities: `CDOTA_Item_Famango` /
+  `GreatFamango` / `GreaterFamango`, and `CDOTA_NPC_Lantern`.
+- The combat log records famangos only as `ITEM` (use) and `HEAL` (effect) — never
+  acquisition. So no combat-log route to collection exists, confirming the user's diagnosis.
+
+**Blocked, with the reason measured rather than assumed:**
+
+| Goal | Blocker |
+|---|---|
+| Lotus pickups per player | The item entity does not know its player. Over one match `m_iPlayerOwnerID` is the **constant 1 on 265 of 269** famango entities, and `m_hOwnerEntity` / `m_nOwnerId` / `m_hOwner` are nil on all 269. Only `m_iTeamNum` varies (2/3/4), so side is available and player is not. |
+| Watcher completions | `CDOTA_NPC_Lantern.m_iTeamNum` sits at the neutral 5 and **never transitions** across a full match, so a completed capture does not flip team. The completion state is somewhere else. |
+
+**Next step for lotuses, concretely:** track each hero entity's inventory array
+(`m_hItems[0..N]`) and credit the hero whose inventory a famango handle first appears in.
+Counting only the SMALL tier avoids double-counting merges, since three smalls are destroyed
+to create a Great. Team-level totals are already available; only the join to a player is
+missing.
+
 ### WATCHERS: found the emblem, still not the mapping
 
 Banner 4 carries **СМОТРИТЕЛИ 280% -> 6931.34** — the first non-zero watcher emblem seen.

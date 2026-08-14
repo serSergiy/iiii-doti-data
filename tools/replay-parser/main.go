@@ -1,3 +1,5 @@
+//go:build !discover && !discover2 && !discover3 && !discover4 && !discover5
+
 package main
 
 // Production replay parser. Extracts the stats no API exposes, per hero, as JSON.
@@ -43,6 +45,7 @@ type heroStats struct {
 type output struct {
 	MatchID       string                `json:"matchId"`
 	ParserVersion int                   `json:"parserVersion"`
+	Entities      *entityStats          `json:"entities"`
 	Heroes        map[string]*heroStats `json:"heroes"`
 	TormentorLog  []tormentorEvent      `json:"tormentorLog"`
 	Notes         map[string]string     `json:"notes"`
@@ -87,6 +90,8 @@ func main() {
 		}
 		return heroes[h]
 	}
+
+	ents := trackEntities(p)
 
 	// Heroes that have damaged the currently-alive tormentor. Reset on each death, so a
 	// second tormentor does not inherit the first one's damage list.
@@ -143,7 +148,8 @@ func main() {
 
 	res := output{
 		MatchID:       matchID,
-		ParserVersion: 1,
+		ParserVersion: 2,
+		Entities:      ents,
 		Heroes:        heroes,
 		TormentorLog:  log,
 		Notes: map[string]string{
