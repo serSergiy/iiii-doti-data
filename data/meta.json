@@ -1,6 +1,6 @@
 {
   "v": 1,
-  "generatedAt": "2026-08-13T23:46:19.443Z",
+  "generatedAt": "2026-08-14T00:20:09.244Z",
   "leagueId": 19719,
   "leagueName": "The International 2026",
   "counts": {
@@ -34,7 +34,8 @@
     "tormentorSelf": 1,
     "tormentorTeam": 1,
     "madstone": 1,
-    "lotus": 1,
+    "famango": 1,
+    "lotus": 0,
     "watcher": 0
   },
   "warningSample": [],

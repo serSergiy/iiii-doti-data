@@ -352,6 +352,29 @@ Nisha's counted series ran **2-0**. Both his maps are game 1 and 2 of a possible
 Predicted role multiplier **x1.000000**; observed **x1.000000** on both banners carrying
 that suffix. That is the mid mystery closed.
 
+### WATCHERS: found the emblem, still not the mapping
+
+Banner 4 carries **СМОТРИТЕЛИ 280% -> 6931.34** — the first non-zero watcher emblem seen.
+Target: **16.5 units** at coefficient 147 (unique under floor-to-10).
+
+`ability_lamp_use` summed to exactly 16.5 on one candidate map pair — but stuns pins the
+counted maps to a *different* pair, where nothing fits:
+
+| Candidate | Units on pinned maps | Coef needed | Spec says |
+|---|---|---|---|
+| ability_lamp_use | 20.5 | 116.6 - 120.8 | 147 |
+| ability_capture | 2 | 1195 - 1238 | 147 |
+| capture + lamp | 22.5 | 106.2 - 110.0 | 147 |
+| dewards | 13 | 183.9 - 190.4 | 147 |
+
+None reaches 147, so either the coefficient is wrong too or the stat is something we do not
+measure. The 16.5 lamp agreement was a coincidence on the wrong series — the same trap the
+lotus mapping fell into.
+
+**Method note worth keeping:** an exact numeric agreement means nothing until the counted
+maps are pinned independently. Twice now a mapping matched on maps that a second emblem
+later ruled out. Pin the maps first, then test the mapping.
+
 ### But the title CANNOT explain the pair uplifts — open problem
 
 Banner 3's support is Aurora (kaori + Mira), who played **exactly one series, a 2-0 sweep**.
@@ -410,7 +433,7 @@ That is a false negative of the method, not evidence against the coefficient.
 Solve for the interval. The three coefficients that survived the original test did so only
 because their true multipliers happened to land exactly on a multiple of 10.
 
-### LOTUSES SOLVED: `famango + great_famango + greater_famango`
+### LOTUSES: RETRACTED — the Aurora match was a coincidence
 
 ```js
 lotus = item_uses.famango + item_uses.great_famango + item_uses.greater_famango
@@ -432,8 +455,25 @@ the two counted maps are forced and there is no map-selection freedom to fit aga
 And the client's emblem back-solves to exactly **9.0 units at coefficient 176** (true
 178.83%, floored to the displayed 170%). Coefficient 176 is confirmed, not rejected.
 
-`lotus` now ships at **100% coverage** (510 across 290 player-maps). `UNSOURCED` is down to
-`watcher` alone.
+**A fourth banner refutes it.** Support = Dukalis + 9Class, and its counted maps are pinned
+**independently by stuns** to `8943267925 + 8943477775` (125.502 units -> 227.32%, the only
+pair in range for the displayed 220%). On those maps:
+
+| Reading | Units | Coef needed | vs claimed 176 |
+|---|---|---|---|
+| famango flat | 11.5 | 267.4 - 283.1 | no |
+| famango weighted 1/3/9 | 65.5 | 46.9 - 49.7 | no |
+
+Neither is reachable, so the mapping is withdrawn. `lotus` is `null` again and `UNSOURCED`
+is back to `['lotus', 'watcher']`. The raw count still ships as its own **`famango`**
+column — it is real measured data and the true stat is probably a function of it — but the
+data no longer asserts a mapping a pinned-map test refutes.
+
+**Likely root cause, and it was the user's diagnosis:** `item_uses` counts lotuses **eaten**,
+not **collected**. `purchase_log` confirms the merge mechanic — it records `great_famango`
+and `greater_famango` acquisitions, i.e. three smalls combining upward. So a player who
+collects nine and eats one greater shows `greater:1`. Collection has to come from **inventory
+events in the replay**, which we have not parsed.
 
 > **Not fully closed.** Banner 1's support pair (Cr1t- + Sneyking) needs 11.0 and their best
 > available pair average is 5.5 — off by exactly 2x, which smells like a sum-vs-average or a

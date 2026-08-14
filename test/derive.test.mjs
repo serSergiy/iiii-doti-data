@@ -37,44 +37,27 @@ test('teamfight participation is present and in 0..1 — the stat STRATZ cannot 
   }
 });
 
-test('unsourced stats are null, never 0 (watcher only — lotus is now sourced)', () => {
+test('unsourced stats are null, never 0', () => {
   const { rows } = deriveMatch(load(8943477775));
-  for (const r of rows) assert.equal(col(r, 'watcher'), null);
+  for (const r of rows) {
+    assert.equal(col(r, 'watcher'), null);
+    // lotus mapping was retracted: refuted on a banner whose maps are pinned by stuns.
+    assert.equal(col(r, 'lotus'), null);
+  }
 });
 
-test('lotuses = famango + great_famango + greater_famango', () => {
+test('famango column carries the raw count (evidence, not a claimed lotus mapping)', () => {
   const raw = load(8943477775);
   const { rows } = deriveMatch(raw);
   for (const [i, p] of raw.players.entries()) {
     const iu = p.item_uses || {};
     const expected = (iu.famango || 0) + (iu.great_famango || 0) + (iu.greater_famango || 0);
     const row = rows.find((r) => col(r, 'accountId') === p.account_id);
-    assert.equal(col(row, 'lotus'), expected, `player ${i}`);
+    assert.equal(col(row, 'famango'), expected, `player ${i}`);
   }
-  assert.ok(rows.some((r) => col(r, 'lotus') > 0), 'someone collected a lotus');
+  assert.ok(rows.some((r) => col(r, 'famango') > 0), 'someone ate a famango');
 });
 
-/**
- * Regression lock on the calibration that identified the mapping. Aurora played exactly
- * one series, so the two counted maps are forced — there is no map-selection freedom to
- * fit against, which is what makes this evidence rather than a coincidence.
- */
-test('lotus mapping reproduces the Aurora banner exactly (9.0)', () => {
-  const pairAvg = (matchId, names) => {
-    const raw = JSON.parse(fs.readFileSync(path.join(DIR, `..`, `..`, 'data', 'raw', `${matchId}.json.gz.json`), 'utf8'));
-    return raw;
-  };
-  // The fixture below is the arithmetic itself, kept as data so the test needs no
-  // dependency on data/raw being present in a fresh clone.
-  const kaori = { 8943097729: 7, 8943171995: 1 };
-  const mira = { 8943097729: 9, 8943171995: 1 };
-  const total = Object.keys(kaori).reduce((a, id) => a + (kaori[id] + mira[id]) / 2, 0);
-  assert.equal(total, 9.0, 'pair average across the two forced maps');
-  // 9.0 units x coef 176 x true 172-179% floors to the 170% the client displayed.
-  const score = 2832.68;
-  const mult = score / (total * 176);
-  assert.ok(mult >= 1.7 && mult < 1.8, `true multiplier ${mult} must floor to 170%`);
-});
 
 test('smoke reads 0 for a carry and nonzero for supports (item_uses omits zero keys)', () => {
   const { rows } = deriveMatch(load(8943477775));

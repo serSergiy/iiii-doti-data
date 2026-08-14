@@ -42,12 +42,13 @@ export const COLUMNS = [
   'tormentorSelf',
   'tormentorTeam',
   'madstone',
+  'famango',        // raw famango+great+greater count — evidence, NOT a claimed mapping
   'lotus',
   'watcher',
 ];
 
 /** Stats we have no source for at all. Emitted as null, NEVER 0 — see note below. */
-export const UNSOURCED = ['watcher'];
+export const UNSOURCED = ['lotus', 'watcher'];
 
 /**
  * ЗІБРАНО ЛОТУСІВ = famango + great_famango + greater_famango, from item_uses.
@@ -56,10 +57,19 @@ export const UNSOURCED = ['watcher'];
  * item uses — it is not a separate objective event, which is why it appears nowhere in the
  * replay combat log and why every earlier hunt for a "lotus" string failed.
  *
- * Confirmed against a real in-client banner under the tightest available constraint:
- * Aurora played exactly one series, so the two counted maps are forced with no selection
- * freedom to fit against. kaori+Mira give (7+9)/2 + (1+1)/2 = 9.0, and the client's emblem
- * back-solves to exactly 9.0 units at coefficient 176. See docs/FINDINGS.md.
+ * RETRACTED as a mapping. It matched the Aurora banner exactly (9.0 units at coef 176),
+ * but a fourth banner whose counted maps are PINNED INDEPENDENTLY BY STUNS
+ * (8943267925 + 8943477775) needs 17.5-18.5 units and this gives 11.5 — and the weighted
+ * 1/3/9 reading (small lotuses merge upward, 3 -> great, 3 more -> greater) gives 65.5.
+ * Neither is reachable. The Aurora agreement was therefore a coincidence.
+ *
+ * The count is still emitted as its own `famango` column, because it is real measured data
+ * and the true lotus stat is probably a function of it — but `lotus` goes back to null
+ * rather than assert a mapping that a pinned-map test refutes.
+ *
+ * Root cause is likely what the user identified: item_uses counts lotuses EATEN, not
+ * COLLECTED, and purchase_log confirms smalls merge into larger ones. Collection has to
+ * come from inventory events in the replay, which we have not parsed.
  */
 const LOTUS_ITEMS = ['famango', 'great_famango', 'greater_famango'];
 const lotuses = (p) => LOTUS_ITEMS.reduce((a, k) => a + itemUses(p, k), 0);
@@ -70,7 +80,7 @@ const lotuses = (p) => LOTUS_ITEMS.reduce((a, k) => a + itemUses(p, k), 0);
  * settled. See docs/FINDINGS.md 0.2.
  */
 export const UNVALIDATED = {
-  lotus: 'item_uses famango+great+greater. Confirmed exactly on one forced-map banner (Aurora); a second banner did not reconcile — see docs/FINDINGS.md',
+  famango: 'raw item_uses famango+great+greater. NOT confirmed to be the lotus stat — refuted on a pinned-map banner. See docs/FINDINGS.md',
   madstone: 'item_uses.madstone_bundle — leading candidate for Безумруди, magnitude unconfirmed',
   smokes: 'item_uses.smoke_of_deceit — ran 1.4-4.6x high vs an independent oracle in prior art; the real stat may only count smokes used in a kill',
   tormentorSelf: 'credits the last hitter; the game is believed to credit all participants — compare with tormentorTeam',
@@ -208,6 +218,7 @@ export function deriveMatch(raw, { rosters = {}, gameNo = null } = {}) {
       p.isRadiant ? torm.bySide.radiant : torm.bySide.dire,
       itemUses(p, 'madstone_bundle'),
       lotuses(p),
+      null, // lotus: mapping retracted, see above
       // null, never 0. The spec's edge cases require "no data" to be distinguishable
       // from "played and scored zero", and baking in 0 makes that unrecoverable.
       null,
