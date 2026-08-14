@@ -404,12 +404,39 @@ have counted them:
 Credit is taken once per entity, on first entry to any inventory, so merges do not
 double-count.
 
+### Lotus coefficient: narrowed to one reading, but that reading is suspect
+
+With attribution working, the three plausible readings were tested against the support
+banner whose maps are **pinned by stuns** (`8943267925 + 8943477775`), then cross-checked
+against the solo-mid integer constraint. Only one survives both:
+
+| Reading | Pair units | Implied coef | Integer for solo Malr1ne? |
+|---|---|---|---|
+| flat (all tiers) | 14 | (219.7, 232.6] | **no** — (4.21, 4.65] |
+| small tier only | 7.5 | (410.0, 434.1] | **no** — (2.26, 2.49] |
+| weighted 1/3/9 | 48 | (64.1, 67.8] | **yes — 15** |
+
+Intersecting both constraints gives a coefficient of roughly **65.3 – 67.8** with Malr1ne at
+15 lotuses.
+
+> **But do not adopt this yet.** The weighted reading almost certainly **double-counts
+> merges**: three smalls enter the inventory and are credited, then the Great they combine
+> into is a *new entity* entering the same inventory and is credited again as 3 more. So
+> "weighted" is inflated by construction, and its apparent success may be that inflation
+> happening to land on an integer.
+>
+> The clean fix is to credit only entities entering from **outside** the inventory
+> (ground/pool) and ignore merge products — which needs distinguishing a merge from a
+> pickup, not yet done. Note too that Malr1ne's own maps are **not pinned** (see the anomaly
+> below), so his integer constraint is itself resting on an unverified map selection.
+
 ### ANOMALY: a solo-mid banner that no map selection can reproduce
 
 Banner 5's mid is Malr1ne, whose kills emblem solves to **28** (unique at coefficient 107).
 Falcons played exactly six TI maps — verified against the team endpoint, not just the league
-listing — with kills `7, 10, 12 / 11, 5, 15`. **No pair of maps sums to 28**; the maximum is
-26, and no best-2-within-a-series combination comes close.
+listing, and **re-verified after the dataset grew to 40 matches** (Falcons still have 6) —
+with kills `7, 10, 12 / 11, 5, 15`. **No pair of maps sums to 28**; the maximum is 26, and no
+best-2-within-a-series combination comes close. This is not a stale-data artifact.
 
 So for this banner at least one of these must be false: coefficient 107, the
 best-2-maps-within-one-series rule, or floor-to-10 on the percentage. Recorded unresolved
