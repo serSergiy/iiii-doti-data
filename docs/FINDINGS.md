@@ -263,6 +263,69 @@ exactly where a rate-vs-total confusion in the scoring engine would show up.
 
 ---
 
+## THE SCORING FORMULA — SOLVED (2026-08-14)
+
+Reported by the user and then verified exactly against a real banner. Valve also **fixed a
+bug** in which pair values were not divided, so banners captured before the fix follow a
+different arithmetic than those after — that is why earlier observations in this file show
+pair "multipliers" above 1 that no title could explain.
+
+```
+emblem points = SUM over counted matches of
+                  [ SUM over the role's players of ( stat x (1 + prefix, if that player's
+                                                              hero qualifies) ) ]
+                  x (1 + suffix, if THAT MATCH qualifies)
+                x coefficient x emblem percent
+
+role score    = SUM of the role's emblem points  /  number of players in the role
+```
+
+Three structural facts, each of which I previously had wrong:
+
+1. **The prefix is per PLAYER per MATCH** — it multiplies only the qualifying player's
+   contribution, because it depends on the hero that player picked in that game.
+2. **The suffix is per MATCH** — it multiplies the whole match term.
+3. **The division by player count is the "divide by 2"**, applied to reach the role score.
+   The emblem *display* is the undivided sum across both players.
+
+### Verified exactly — Elleyer, support, after ONE match
+
+Support = tOfu + Boxi (Team Liquid), counting only game 1 of Liquid vs Vici
+(`8943091110`). Title `Crimson … the Clutch`: Crimson is +6% on a red hero, and the Clutch
+suffix cannot fire in game 1 because it needs the last **possible** game.
+
+```
+runes      5 + 12 x 1.06 = 17.72000  x 141  x 3.00 = 7495.56   client 7495.56   EXACT
+teamfight  0.5385 + 0.7949 x 1.06 = 1.38109 x 2124 x 1.30 = 3813.30   client 3813.29   EXACT
+```
+
+Two independent emblems agree that **Boxi** carried the red hero and tOfu did not. Nothing
+was fitted: the coefficients are official, the percentages are the displayed ones, and the
+only free choice was which of the two players took the +6%.
+
+### This yields exact WATCHER ground truth
+
+With the formula and the prefix assignment both pinned, the watcher emblem
+(`WATCHERS TAKEN 240% -> 4381.78`, coefficient 147) solves to a unique whole-number pair:
+
+```
+a + 1.06b = 12.42   ->   tOfu = 5,  Boxi = 7      (b is Boxi, who holds the prefix)
+```
+
+The replay for that same match reports **lamp clicks of 7 and 11**. So:
+
+| player | `ability_lamp_use` clicks | watchers actually credited |
+|---|---|---|
+| tOfu | 7 | **5** |
+| Boxi | 11 | **7** |
+
+This is the first hard confirmation that a watcher is a **completed capture** and that the
+click count overcounts — exactly as the official wording ("за **захопленого** споглядача")
+says. It also hands the parser a target to hit: any completion-detection scheme must
+produce 5 and 7 for these two heroes in match `8943091110`.
+
+---
+
 ## COEFFICIENTS ARE OFFICIAL — all 18 confirmed (2026-08-14)
 
 The in-client glossary screen was transcribed into `config/coefficients.json`. **Every one
