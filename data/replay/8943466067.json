@@ -1,0 +1,146 @@
+{
+ "matchId": "8943466067",
+ "parserVersion": 2,
+ "entities": {
+  "lotusByHero": {
+   "Bloodseeker": {
+    "great": 1,
+    "greater": 2,
+    "small": 1
+   },
+   "DarkWillow": {
+    "great": 4,
+    "greater": 5
+   },
+   "DrowRanger": {
+    "great": 1,
+    "small": 1
+   },
+   "Magnataur": {
+    "small": 4
+   },
+   "Mirana": {
+    "great": 1,
+    "greater": 1,
+    "small": 3
+   },
+   "SandKing": {
+    "great": 1,
+    "small": 1
+   },
+   "Shredder": {
+    "small": 2
+   },
+   "Undying": {
+    "great": 2,
+    "greater": 2,
+    "small": 1
+   },
+   "Winter_Wyvern": {
+    "small": 1
+   }
+  },
+  "lotusEntitiesCredited": 34,
+  "lotusEntitiesSeen": 34
+ },
+ "heroes": {
+  "npc_dota_hero_bloodseeker": {
+   "watchers": 2,
+   "lamps": 4,
+   "madstones": 23,
+   "tormentorKills": 1,
+   "tormentorParticipation": 1
+  },
+  "npc_dota_hero_dark_willow": {
+   "watchers": 4,
+   "lamps": 28,
+   "madstones": 6,
+   "tormentorKills": 0,
+   "tormentorParticipation": 0
+  },
+  "npc_dota_hero_drow_ranger": {
+   "watchers": 0,
+   "lamps": 2,
+   "madstones": 33,
+   "tormentorKills": 1,
+   "tormentorParticipation": 1
+  },
+  "npc_dota_hero_magnataur": {
+   "watchers": 1,
+   "lamps": 9,
+   "madstones": 30,
+   "tormentorKills": 0,
+   "tormentorParticipation": 0
+  },
+  "npc_dota_hero_mirana": {
+   "watchers": 1,
+   "lamps": 21,
+   "madstones": 10,
+   "tormentorKills": 0,
+   "tormentorParticipation": 0
+  },
+  "npc_dota_hero_sand_king": {
+   "watchers": 0,
+   "lamps": 4,
+   "madstones": 13,
+   "tormentorKills": 0,
+   "tormentorParticipation": 0
+  },
+  "npc_dota_hero_shredder": {
+   "watchers": 3,
+   "lamps": 2,
+   "madstones": 14,
+   "tormentorKills": 1,
+   "tormentorParticipation": 1
+  },
+  "npc_dota_hero_undying": {
+   "watchers": 1,
+   "lamps": 9,
+   "madstones": 3,
+   "tormentorKills": 0,
+   "tormentorParticipation": 0
+  },
+  "npc_dota_hero_winter_wyvern": {
+   "watchers": 1,
+   "lamps": 16,
+   "madstones": 0,
+   "tormentorKills": 0,
+   "tormentorParticipation": 0
+  },
+  "npc_dota_hero_zuus": {
+   "watchers": 1,
+   "lamps": 1,
+   "madstones": 13,
+   "tormentorKills": 0,
+   "tormentorParticipation": 0
+  }
+ },
+ "tormentorLog": [
+  {
+   "time": 2247,
+   "killer": "npc_dota_hero_drow_ranger",
+   "damagers": [
+    "npc_dota_hero_drow_ranger"
+   ]
+  },
+  {
+   "time": 2901,
+   "killer": "npc_dota_hero_bloodseeker",
+   "damagers": [
+    "npc_dota_hero_bloodseeker"
+   ]
+  },
+  {
+   "time": 3589,
+   "killer": "npc_dota_hero_shredder",
+   "damagers": [
+    "npc_dota_hero_shredder"
+   ]
+  }
+ ],
+ "notes": {
+  "lotus": "NOT RECOVERABLE from the combat log — no lotus pickup events exist. Needs entity-level work on CDOTA_BaseNPC_LotusPool.",
+  "tormentor": "tormentorKills = last hitter. tormentorParticipation = damaged a tormentor that then died; the combat log's assist list is empty for these, so participation is derived from damage.",
+  "watchers": "ability_capture. Distinct from ability_lamp_use, which is what the open APIs conflate it with."
+ }
+}
