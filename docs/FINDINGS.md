@@ -263,6 +263,50 @@ exactly where a rate-vs-total confusion in the scoring engine would show up.
 
 ---
 
+## COEFFICIENTS ARE OFFICIAL — all 18 confirmed (2026-08-14)
+
+The in-client glossary screen was transcribed into `config/coefficients.json`. **Every one
+of the 18 values matches the reverse-engineered battlepass.ru table exactly.** The spec's
+standing warning that the coefficients are "unofficial — validate before shipping" can be
+retired: they are correct.
+
+**This inverts how every remaining discrepancy must be debugged.** With the coefficients
+fixed and known-good, a banner we cannot reproduce is now proof of a fault in our **stat
+mapping** or **map selection** — never in the coefficient. Previous sections that solved
+*for* a coefficient (e.g. "coef that would fit") are therefore obsolete as method: the
+coefficient is a given, and the unit count is the unknown.
+
+### Definitions the glossary supplies, and what each one settles
+
+| Stat | Official wording | What it settles |
+|---|---|---|
+| РАХУНОК КРІПІВ | "за останній удар **чи добивання**" | last hit **or deny** — confirms `last_hits + denies` |
+| ЗНИЩЕННЯ ВЕЖ | "за **останній удар** по вежі" | last hit on the tower — confirms `towers_killed` |
+| ПОСТАВЛЕНІ ВАРДИ | "за встановлений **оглядовий** вард" | **observer** wards only; sentries do not count |
+| ПІДНЯТІ РУНИ | "за підняту **чи закорковану**" | picked up **or bottled** — see the shortfall below |
+| ЗАХОПЛЕНІ СПОГЛЯДАЧІ | "за **захопленого** споглядача" | a **completed capture**, confirming that the lamp *click* overcounts |
+| ПІДНЯТІ ЛОТОСИ | "за **піднятий** лотос" | per lotus **picked up** — so `item_uses` (eaten) was always the wrong shape |
+| ПРИГОЛОМШЕННЯ | "за **секунду** приголомшення" | per second — matches OpenDota `stuns` to five decimals |
+| УЧАСТЬ У БИТВАХ | "**Макс.** 2 124,00" | a 0..1 fraction scaled to a cap, not a per-unit rate |
+| УБИВСТВА МУЧИТЕЛІВ | "за **вбивство** мучителя" | per **kill** — argues the last-hitter reading is right and "credits all participants" is wrong |
+| ВИКОРИСТАНО ДИМІВ | "за **використаний** Дим омани" | no kill requirement — argues against the prior-art "only smokes used in a kill" theory |
+| СМЕРТІ | "1 950 початково, -195 за смерть" | confirms the base-minus-per-death shape, and the game does not clamp |
+
+Two mapping notes flipped from "uncertain" to "probably right" on this evidence
+(tormentor = last hitter, smokes = every use), and two stayed blocked but got sharper: a
+watcher is a **completed capture**, a lotus is a **pickup**.
+
+### The rune shortfall is now a measurable defect, not a mystery
+
+Nisha's banner needs **38** rune units at the official 141. His only day-1 series gives
+**37** (`20 + 17`), and OpenDota's `rune_pickups` and its `runes` histogram sum identically
+on every map — so neither field counts whatever the glossary means by "закоркована"
+(bottled). **Short by exactly one.** That is the right size for a single bottled rune the
+API does not record, and it is now a concrete thing to hunt in the replay rather than an
+unexplained mismatch.
+
+---
+
 ## Selection rule — CONFIRMED, and it answers spec open item 4
 
 **A banner counts only the 2 best matches of its best series — and the best series is chosen

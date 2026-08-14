@@ -82,9 +82,9 @@ const lotuses = (p) => LOTUS_ITEMS.reduce((a, k) => a + itemUses(p, k), 0);
 export const UNVALIDATED = {
   famango: 'raw item_uses famango+great+greater. NOT confirmed to be the lotus stat — refuted on a pinned-map banner. See docs/FINDINGS.md',
   madstone: 'item_uses.madstone_bundle — leading candidate for Безумруди, magnitude unconfirmed',
-  smokes: 'item_uses.smoke_of_deceit — ran 1.4-4.6x high vs an independent oracle in prior art; the real stat may only count smokes used in a kill',
-  tormentorSelf: 'credits the last hitter; the game is believed to credit all participants — compare with tormentorTeam',
-  stuns: "OpenDota's stun definition may not equal the game's (spec: hard control only, not silence or slow)",
+  smokes: 'item_uses.smoke_of_deceit. The OFFICIAL glossary says simply "за використаний Дим омани" with no kill requirement, which argues against the prior-art theory that only smokes used in a kill count.',
+  tormentorSelf: 'credits the last hitter — which the OFFICIAL glossary now supports ("за вбивство мучителя", per KILL, not per participation). tormentorTeam is kept only as a fallback reading.',
+  madstone_note: 'ЗІБРАНИЙ ЛЮТИТ is "за зібраний лютит" — per madstone COLLECTED, so a collection count is the right shape.',
 };
 
 /** A remake is a map that never really happened. Heuristic — flagged, not trusted. */

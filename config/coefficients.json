@@ -1,0 +1,29 @@
+{
+  "_source": "In-client glossary screen, transcribed 2026-08-14. These are OFFICIAL, stated by the game.",
+  "_status": "All 18 values match the reverse-engineered battlepass.ru table EXACTLY. That table is now confirmed rather than unofficial, and the spec's standing caveat about it can be retired.",
+  "_consequence": "Because the coefficients are now fixed and known-correct, any banner we cannot reproduce is a fault in our STAT MAPPING or MAP SELECTION — never in the coefficient. That inverts how every remaining discrepancy should be debugged.",
+  "_note": "This file is reference data for the scoring engine in site-repo. derive.mjs deliberately holds no coefficients; it emits counts.",
+
+  "stats": [
+    { "id": "kills",       "uk": "УБИВСТВА",              "color": "red",   "kind": "perUnit", "points": 107,  "definitionUk": "за вбивство", "definition": "per kill" },
+    { "id": "deaths",      "uk": "СМЕРТІ",                "color": "red",   "kind": "baseMinusPerUnit", "base": 1950, "points": -195, "definitionUk": "1 950,00 початково, -195,00 за смерть", "definition": "starts at 1950, -195 per death; the game does NOT clamp at zero" },
+    { "id": "creepScore",  "uk": "РАХУНОК КРІПІВ",        "color": "red",   "kind": "perUnit", "points": 3,    "definitionUk": "за останній удар чи добивання", "definition": "per last hit OR deny -> last_hits + denies" },
+    { "id": "gpmX2",       "uk": "33Х",                   "color": "red",   "kind": "perUnit", "points": 2,    "definitionUk": "Золото за хвилину, помножене на 2,00", "definition": "gold per minute x 2" },
+    { "id": "madstone",    "uk": "ЗІБРАНИЙ ЛЮТИТ",        "color": "red",   "kind": "perUnit", "points": 13,   "definitionUk": "за зібраний лютит", "definition": "per madstone COLLECTED" },
+    { "id": "towerKills",  "uk": "ЗНИЩЕННЯ ВЕЖ",          "color": "red",   "kind": "perUnit", "points": 352,  "definitionUk": "за останній удар по вежі", "definition": "per LAST HIT on a tower -> towers_killed" },
+
+    { "id": "obsPlaced",   "uk": "ПОСТАВЛЕНІ ВАРДИ",      "color": "blue",  "kind": "perUnit", "points": 117,  "definitionUk": "за встановлений оглядовий вард", "definition": "per OBSERVER ward placed (sentries do not count)" },
+    { "id": "campsStacked","uk": "ЗАСКИРТОВАНІ ТАБОРИ",   "color": "blue",  "kind": "perUnit", "points": 234,  "definitionUk": "за скиртування табору", "definition": "per camp stacked" },
+    { "id": "runePickups", "uk": "ПІДНЯТІ РУНИ",          "color": "blue",  "kind": "perUnit", "points": 141,  "definitionUk": "за підняту чи закорковану руну", "definition": "per rune picked up OR BOTTLED. Our mapping uses rune_pickups; OpenDota's `runes` histogram sums identically, so if bottling is a distinct event neither field counts it. Nisha's banner needs 38 where we measure 37 — short by exactly one." },
+    { "id": "watchers",    "uk": "ЗАХОПЛЕНІ СПОГЛЯДАЧІ",  "color": "blue",  "kind": "perUnit", "points": 147,  "definitionUk": "за захопленого споглядача", "definition": "per CAPTURED watcher. Confirms it is a completed capture, not a click — ability_lamp_use fires on the click and overcounts. NO SOURCE YET." },
+    { "id": "lotuses",     "uk": "ПІДНЯТІ ЛОТОСИ",        "color": "blue",  "kind": "perUnit", "points": 176,  "definitionUk": "за піднятий лотос", "definition": "per lotus PICKED UP. Confirms pickup semantics, so item_uses (eaten) was always the wrong shape. NO WORKING READING YET." },
+    { "id": "smokesUsed",  "uk": "ВИКОРИСТАНО ДИМІВ",     "color": "blue",  "kind": "perUnit", "points": 293,  "definitionUk": "оч. за використаний Дим омани", "definition": "per Smoke of Deceit USED — no kill requirement in the wording, which argues against the prior art's 'only smokes used in a kill' theory" },
+
+    { "id": "roshanKills", "uk": "УБИВСТВА РОШАНА",       "color": "green", "kind": "perUnit", "points": 1172, "definitionUk": "за вбивство Рошана", "definition": "per Roshan kill" },
+    { "id": "teamfight",   "uk": "УЧАСТЬ У БИТВАХ",       "color": "green", "kind": "cappedByFraction", "points": 2124, "definitionUk": "Макс. 2 124,00 за участь у командних боях", "definition": "MAX 2124 — a 0..1 participation fraction scaled to the cap, not a per-unit rate" },
+    { "id": "stuns",       "uk": "ПРИГОЛОМШЕННЯ",         "color": "green", "kind": "perUnit", "points": 10,   "definitionUk": "за секунду приголомшення", "definition": "per SECOND of stun. OpenDota's `stuns` reproduced a client emblem to five decimals, so the definitions match." },
+    { "id": "tormentor",   "uk": "УБИВСТВА МУЧИТЕЛІВ",    "color": "green", "kind": "perUnit", "points": 879,  "definitionUk": "за вбивство мучителя", "definition": "per tormentor KILL. The wording says kill, not participation — which argues the last-hitter reading is right and the 'credits all participants' theory is wrong." },
+    { "id": "courierKills","uk": "УБИВСТВА КУР'ЄРІВ",     "color": "green", "kind": "perUnit", "points": 703,  "definitionUk": "за вбивство кур'єра", "definition": "per courier kill" },
+    { "id": "firstBlood",  "uk": "ПЕРША КРОВ",            "color": "green", "kind": "perEvent","points": 1934, "definitionUk": "оч. за пролиття гравцем першої крові", "definition": "one-time, to the player who DREW first blood -> firstblood_claimed" }
+  ]
+}
