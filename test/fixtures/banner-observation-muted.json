@@ -1,0 +1,47 @@
+{
+ "schema": "ti2026-banner-observation/1",
+ "capturedAt": "2026-08-13",
+ "source": "in-client screenshot (RU client), manually transcribed. Title not visible in the crop.",
+ "player": "muted(",
+ "title": { "prefix": null, "suffix": null },
+ "format": "group",
+ "roles": {
+  "core": {
+   "label": "ОСНОВА", "players": ["Noticed", "Satanic"],
+   "emblems": [
+    { "slot": 1, "color": "red",   "stat": "creepScore", "statUk": "КРИПЫ",        "percent": 160, "score": 0 },
+    { "slot": 2, "color": "green", "stat": "firstBlood", "statUk": "ПЕРВАЯ КРОВЬ", "percent": 170, "score": 0 },
+    { "slot": 3, "color": "red",   "stat": "kills",      "statUk": "УБИЙСТВА",     "percent": 110, "score": 0 }
+   ],
+   "emblemSum": 0, "observedTotal": 0, "delta": 0, "impliedMultiplier": null,
+   "note": "ALL THREE emblems zero and no opponent shown — an entire role scoring nothing. This is the spec's 'picked player never fielded / played but scored zero' edge case appearing in the wild, and it must render as an explicit state, never a blank."
+  },
+  "mid": {
+   "label": "ЦЕНТР", "players": ["Malr1ne"],
+   "emblems": [
+    { "slot": 1, "color": "red",   "stat": "kills",     "statUk": "УБИЙСТВА",            "percent": 200, "score": 6077.60 },
+    { "slot": 2, "color": "blue",  "stat": "lotuses",   "statUk": "СБОР ЛОТОСОВ",        "percent": 240, "score": 2449.92 },
+    { "slot": 3, "color": "green", "stat": "tormentor", "statUk": "УБИЙСТВА ТЕРЗАТЕЛЕЙ", "percent": 190, "score": 5544.73 }
+   ],
+   "emblemSum": 14072.25, "observedTotal": 14072.25, "delta": 0, "impliedMultiplier": 1.0
+  },
+  "support": {
+   "label": "ПОДДЕРЖКА", "players": ["Dukalis", "9Class"],
+   "emblems": [
+    { "slot": 1, "color": "blue",  "stat": "watchers", "statUk": "СМОТРИТЕЛИ",   "percent": 280, "score": 6931.34 },
+    { "slot": 2, "color": "green", "stat": "stuns",    "statUk": "ОГЛУШЕНИЯ",    "percent": 220, "score": 2852.88 },
+    { "slot": 3, "color": "blue",  "stat": "lotuses",  "statUk": "СБОР ЛОТОСОВ", "percent": 170, "score": 5535.20 }
+   ],
+   "emblemSum": 15319.42, "observedTotal": 18564.76, "delta": 3245.34, "impliedMultiplier": 1.211845
+  }
+ },
+ "observedGrandTotal": 32637.01,
+ "roleTotalSum": 32637.01,
+ "grandDelta": 0,
+ "notes": [
+  "HIGH VALUE: a SOLO mid carrying a LOTUS emblem. Solo means the unit count must be an integer, which is the sharpest test available. At coefficient 176 the range (5.568, 5.800] contains NO integer — so 176 is wrong for lotuses, independently of which maps counted.",
+  "kills solves to exactly 28 at coefficient 107 — the fourth independent confirmation of that coefficient.",
+  "mid is x1.000000 for the fourth consecutive banner.",
+  "Same support pair as banner 4, so the watcher and lotus emblems there are cross-checkable."
+ ]
+}

@@ -352,6 +352,45 @@ Nisha's counted series ran **2-0**. Both his maps are game 1 and 2 of a possible
 Predicted role multiplier **x1.000000**; observed **x1.000000** on both banners carrying
 that suffix. That is the mid mystery closed.
 
+### Lotus coefficient 176 is WRONG — proved by a solo mid
+
+A fifth banner (`muted(`) carries the decisive case: a **solo mid with a lotus emblem**.
+Solo means the unit count must be a whole number, which needs no knowledge of map selection.
+
+```
+СБОР ЛОТОСОВ  240%  ->  2449.92     raw x coef in (980.0, 1020.8]
+   at coef 176:  units in (5.568, 5.800]  ->  NO INTEGER EXISTS
+```
+
+So 176 cannot be the lotus coefficient regardless of which maps counted. Coefficients that
+*would* admit an integer: ~(163.3, 170.1] for 6 lotuses, ~(140.0, 145.8] for 7, ~(196.0,
+204.2] for 5. Narrowing further needs a real pickup count.
+
+The same banner confirms **kills = 28 at coefficient 107** — the fourth independent
+confirmation — and mid reads **x1.000000 for the fourth consecutive banner**.
+
+It also shows an entire role scoring **0.00 across all three emblems** with no opponent
+listed: the spec's "picked player never fielded / played but scored zero" edge case, live.
+It must render as an explicit state, never a blank.
+
+### When do lotus entities appear? (answering the direct question)
+
+Measured over one 95-minute match: **43 distinct famango entities**, of which **12 never
+receive an owner at all**. Only 15 are small-tier creations. That is far too few for
+timer-spawned map objects across a game of that length, so the item entity is minted when
+the item comes into a player's possession rather than sitting on the map — the pool itself
+is `CDOTA_BaseNPC_LotusPool`, a separate entity holding charges.
+
+**But the picker is still not recoverable from the item.** Per *distinct entity* (the
+earlier count was per entity-op, which inflated a long-lived item into many observations —
+a real flaw in that measurement, though the conclusion survives): `m_iPlayerOwnerID` is set
+for only **2 of 10 players**, and `m_hOwnerEntity` / `m_nOwnerId` / `m_hOwner` do not exist
+on the class at all. The full field list contains no other owner candidate.
+
+So the answer to "who picked them" is: **not on the item — it has to come from the hero.**
+Track each hero entity's inventory (`m_hItems`) and credit the hero whose inventory a
+famango handle first enters, counting the small tier only so merges do not double-count.
+
 ### Entity-level attempt on lotuses and watchers — partial
 
 Following the user's two corrections (lotuses are *picked*, not eaten, and merge upward;
