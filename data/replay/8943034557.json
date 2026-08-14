@@ -1,6 +1,42 @@
 {
  "matchId": "8943034557",
- "parserVersion": 1,
+ "parserVersion": 2,
+ "entities": {
+  "lotusByHero": {
+   "DarkSeer": {
+    "great": 1,
+    "greater": 1,
+    "small": 2
+   },
+   "Mirana": {
+    "great": 1,
+    "small": 7
+   },
+   "Necrolyte": {
+    "great": 1,
+    "small": 2
+   },
+   "Pangolier": {
+    "small": 3
+   },
+   "Rattletrap": {
+    "great": 3,
+    "small": 4
+   },
+   "Shadow_Demon": {
+    "small": 4
+   },
+   "SpiritBreaker": {
+    "great": 2,
+    "small": 1
+   },
+   "Tiny": {
+    "small": 3
+   }
+  },
+  "lotusEntitiesCredited": 35,
+  "lotusEntitiesSeen": 35
+ },
  "heroes": {
   "npc_dota_hero_dark_seer": {
    "watchers": 0,

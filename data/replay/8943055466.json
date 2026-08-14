@@ -1,6 +1,30 @@
 {
  "matchId": "8943055466",
- "parserVersion": 1,
+ "parserVersion": 2,
+ "entities": {
+  "lotusByHero": {
+   "BountyHunter": {
+    "great": 1,
+    "small": 3
+   },
+   "Centaur": {
+    "great": 1,
+    "small": 1
+   },
+   "DarkWillow": {
+    "small": 2
+   },
+   "Hoodwink": {
+    "great": 1,
+    "small": 3
+   },
+   "Necrolyte": {
+    "small": 27
+   }
+  },
+  "lotusEntitiesCredited": 39,
+  "lotusEntitiesSeen": 39
+ },
  "heroes": {
   "npc_dota_hero_axe": {
    "watchers": 0,

@@ -1,6 +1,38 @@
 {
  "matchId": "8943000927",
- "parserVersion": 1,
+ "parserVersion": 2,
+ "entities": {
+  "lotusByHero": {
+   "Centaur": {
+    "small": 1
+   },
+   "Earthshaker": {
+    "small": 1
+   },
+   "Hoodwink": {
+    "small": 1
+   },
+   "Life_Stealer": {
+    "great": 1,
+    "small": 1
+   },
+   "Morphling": {
+    "small": 2
+   },
+   "Rattletrap": {
+    "great": 1,
+    "small": 2
+   },
+   "Slardar": {
+    "small": 1
+   },
+   "Undying": {
+    "small": 1
+   }
+  },
+  "lotusEntitiesCredited": 12,
+  "lotusEntitiesSeen": 12
+ },
  "heroes": {
   "npc_dota_hero_centaur": {
    "watchers": 0,

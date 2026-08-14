@@ -1,6 +1,41 @@
 {
  "matchId": "8942993144",
- "parserVersion": 1,
+ "parserVersion": 2,
+ "entities": {
+  "lotusByHero": {
+   "Alchemist": {
+    "small": 1
+   },
+   "CrystalMaiden": {
+    "small": 3
+   },
+   "Hoodwink": {
+    "great": 1
+   },
+   "Mars": {
+    "great": 3,
+    "greater": 3,
+    "small": 4
+   },
+   "PhantomLancer": {
+    "great": 1
+   },
+   "Snapfire": {
+    "great": 3,
+    "small": 2
+   },
+   "Tusk": {
+    "great": 1,
+    "greater": 1,
+    "small": 4
+   },
+   "Windrunner": {
+    "small": 1
+   }
+  },
+  "lotusEntitiesCredited": 28,
+  "lotusEntitiesSeen": 28
+ },
  "heroes": {
   "npc_dota_hero_alchemist": {
    "watchers": 0,

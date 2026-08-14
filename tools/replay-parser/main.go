@@ -142,6 +142,7 @@ func main() {
 	if err := p.Start(); err != nil {
 		fmt.Fprintln(os.Stderr, "parse error (partial results kept):", err)
 	}
+	ents.finish()
 
 	base := filepath.Base(in)
 	matchID := strings.SplitN(strings.TrimSuffix(base, ".dem.bz2"), "_", 2)[0]

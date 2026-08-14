@@ -1,6 +1,44 @@
 {
  "matchId": "8943053016",
- "parserVersion": 1,
+ "parserVersion": 2,
+ "entities": {
+  "lotusByHero": {
+   "DrowRanger": {
+    "small": 1
+   },
+   "EarthSpirit": {
+    "great": 1,
+    "small": 2
+   },
+   "Lycan": {
+    "small": 1
+   },
+   "Nevermore": {
+    "small": 3
+   },
+   "Phoenix": {
+    "small": 1
+   },
+   "Rubick": {
+    "great": 3,
+    "greater": 1,
+    "small": 1
+   },
+   "Slardar": {
+    "small": 2
+   },
+   "Snapfire": {
+    "small": 2
+   },
+   "Undying": {
+    "great": 3,
+    "greater": 2,
+    "small": 1
+   }
+  },
+  "lotusEntitiesCredited": 24,
+  "lotusEntitiesSeen": 24
+ },
  "heroes": {
   "npc_dota_hero_drow_ranger": {
    "watchers": 0,

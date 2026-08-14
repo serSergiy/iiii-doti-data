@@ -1,6 +1,46 @@
 {
  "matchId": "8943091110",
- "parserVersion": 1,
+ "parserVersion": 2,
+ "entities": {
+  "lotusByHero": {
+   "EarthSpirit": {
+    "small": 2
+   },
+   "Kez": {
+    "great": 3,
+    "greater": 5,
+    "small": 15
+   },
+   "Lina": {
+    "great": 2
+   },
+   "Rattletrap": {
+    "great": 2,
+    "greater": 1,
+    "small": 1
+   },
+   "Tusk": {
+    "great": 5,
+    "greater": 2,
+    "small": 3
+   },
+   "Windrunner": {
+    "small": 1
+   },
+   "Winter_Wyvern": {
+    "great": 5,
+    "greater": 3,
+    "small": 1
+   },
+   "Wisp": {
+    "great": 1,
+    "greater": 2,
+    "small": 3
+   }
+  },
+  "lotusEntitiesCredited": 57,
+  "lotusEntitiesSeen": 57
+ },
  "heroes": {
   "npc_dota_hero_abyssal_underlord": {
    "watchers": 0,

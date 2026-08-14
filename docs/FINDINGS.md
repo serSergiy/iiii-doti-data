@@ -373,6 +373,49 @@ It also shows an entire role scoring **0.00 across all three emblems** with no o
 listed: the spec's "picked player never fielded / played but scored zero" edge case, live.
 It must render as an explicit state, never a blank.
 
+### SOLVED: lotus pickups are attributable, from the HERO's inventory
+
+The question "could only 2 players have picked them?" was worth asking and is **cleanly
+disproved**: in match 8943477775, **8 of 10 players used famangos**, while
+`m_iPlayerOwnerID` was populated for only 2 ids. The counts do not line up either —
+playerID 1 accumulated 28 entities while slot 1 used 3, and the biggest user (9Class, 14)
+never appears. The field is unreliable, not sparse.
+
+**The working route is the hero side.** A Source 2 entity handle carries the entity index
+in its low 14 bits, so a famango can be matched to the hero whose inventory
+(`m_hItems.NNNN`) it first enters:
+
+```
+famango entities seen: 43,  credited to a hero: 43   (100%)
+```
+
+Per hero on that map — and note this measures **acquisition**, not consumption, which is
+the whole point. Necrolyte holds 5 greaters and ate **zero**, so `item_uses` could never
+have counted them:
+
+| hero | small | great | greater |
+|---|---|---|---|
+| Treant | 5 | 4 | 3 |
+| Windrunner | 3 | 3 | 5 |
+| Necrolyte | 0 | 0 | 5 |
+| EarthSpirit | 1 | 2 | 1 |
+| Lion | 3 | 0 | 0 |
+
+Credit is taken once per entity, on first entry to any inventory, so merges do not
+double-count.
+
+### ANOMALY: a solo-mid banner that no map selection can reproduce
+
+Banner 5's mid is Malr1ne, whose kills emblem solves to **28** (unique at coefficient 107).
+Falcons played exactly six TI maps — verified against the team endpoint, not just the league
+listing — with kills `7, 10, 12 / 11, 5, 15`. **No pair of maps sums to 28**; the maximum is
+26, and no best-2-within-a-series combination comes close.
+
+So for this banner at least one of these must be false: coefficient 107, the
+best-2-maps-within-one-series rule, or floor-to-10 on the percentage. Recorded unresolved
+rather than fitted, because the same coefficient reproduced Pure+33 exactly on pinned maps
+and the two results cannot both be right under one model.
+
 ### When do lotus entities appear? (answering the direct question)
 
 Measured over one 95-minute match: **43 distinct famango entities**, of which **12 never

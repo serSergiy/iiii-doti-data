@@ -1,6 +1,36 @@
 {
  "matchId": "8943072784",
- "parserVersion": 1,
+ "parserVersion": 2,
+ "entities": {
+  "lotusByHero": {
+   "Batrider": {
+    "great": 1,
+    "small": 5
+   },
+   "Lina": {
+    "great": 2,
+    "greater": 1,
+    "small": 3
+   },
+   "Mirana": {
+    "small": 2
+   },
+   "Pangolier": {
+    "great": 3,
+    "small": 6
+   },
+   "Rattletrap": {
+    "great": 2
+   },
+   "Shadow_Demon": {
+    "great": 1,
+    "greater": 1,
+    "small": 3
+   }
+  },
+  "lotusEntitiesCredited": 30,
+  "lotusEntitiesSeen": 30
+ },
  "heroes": {
   "npc_dota_hero_batrider": {
    "watchers": 2,

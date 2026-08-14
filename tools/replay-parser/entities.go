@@ -32,15 +32,20 @@ package main
 // capture or the state lives elsewhere. Unresolved.
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/dotabuff/manta"
 )
 
 type entityStats struct {
-	// lotuses, by dota player id 0-9
-	LotusPickups map[int]int `json:"lotusPickups"`
-	LotusByTier  map[int]map[string]int `json:"lotusByTier"`
-	// watcher captures that actually COMPLETED, by team (2 radiant / 3 dire)
-	LanternCapturesByTeam map[int]int `json:"lanternCapturesByTeam"`
+	// Lotus pickups per hero, by tier. Credited from the HERO's inventory, which is the
+	// only place the picker is recoverable — see the note above.
+	LotusByHero map[string]map[string]int `json:"lotusByHero"`
+	LotusTotal  int                       `json:"lotusEntitiesCredited"`
+	LotusSeen   int                       `json:"lotusEntitiesSeen"`
+
+	finish func() `json:"-"`
 }
 
 var famangoClass = map[string]string{
@@ -49,84 +54,59 @@ var famangoClass = map[string]string{
 	"CDOTA_Item_GreaterFamango": "greater",
 }
 
-func intOf(e *manta.Entity, key string) (int, bool) {
-	v := e.Get(key)
-	if v == nil {
-		return 0, false
-	}
-	switch n := v.(type) {
-	case int32:
-		return int(n), true
-	case uint32:
-		return int(n), true
-	case int:
-		return n, true
-	case uint64:
-		return int(n), true
-	case int64:
-		return int(n), true
-	}
-	return 0, false
-}
-
 // trackEntities wires the entity callbacks and returns the accumulating stats.
 func trackEntities(p *manta.Parser) *entityStats {
-	st := &entityStats{
-		LotusPickups:          map[int]int{},
-		LotusByTier:           map[int]map[string]int{},
-		LanternCapturesByTeam: map[int]int{},
-	}
-	// handle -> last seen team, so only genuine transitions count.
-	lanternTeam := map[int32]int{}
-	// famango entity handle -> already counted, so an entity is a pickup exactly once.
-	credited := map[int32]bool{}
+	st := &entityStats{LotusByHero: map[string]map[string]int{}}
+
+	famTier := map[int32]string{} // famango entity index -> tier
+	credited := map[int32]bool{}  // credited exactly once, to the first inventory it enters
 
 	p.OnEntity(func(e *manta.Entity, op manta.EntityOp) error {
 		cn := e.GetClassName()
-
-		if tier, ok := famangoClass[cn]; ok {
-			// The owner is NOT set at creation — it lands in a later update, so crediting
-			// only on Created silently loses almost every pickup. Credit each entity once,
-			// the first time it has a real owner.
-			idx := e.GetIndex()
-			if credited[idx] {
-				return nil
-			}
-			owner, ok := intOf(e, "m_iPlayerOwnerID")
-			if !ok || owner < 0 || owner > 9 {
-				return nil // still on the ground
-			}
-			credited[idx] = true
-			charges, ok := intOf(e, "m_iCurrentCharges")
-			if !ok || charges < 1 {
-				charges = 1
-			}
-			if st.LotusByTier[owner] == nil {
-				st.LotusByTier[owner] = map[string]int{}
-			}
-			st.LotusByTier[owner][tier] += charges
-			// Only the SMALL tier is a pickup; the larger tiers are merge products.
-			if tier == "small" {
-				st.LotusPickups[owner] += charges
-			}
+		if t, ok := famangoClass[cn]; ok {
+			famTier[e.GetIndex()] = t
 			return nil
 		}
-
-		if cn == "CDOTA_NPC_Lantern" {
-			team, ok := intOf(e, "m_iTeamNum")
-			if !ok {
-				return nil
-			}
-			idx := e.GetIndex()
-			prev, seen := lanternTeam[idx]
-			lanternTeam[idx] = team
-			// 5 is the neutral/unowned state; 2 and 3 are the two sides.
-			if seen && prev != team && (team == 2 || team == 3) {
-				st.LanternCapturesByTeam[team]++
-			}
+		if !strings.HasPrefix(cn, "CDOTA_Unit_Hero_") {
 			return nil
+		}
+		hero := strings.TrimPrefix(cn, "CDOTA_Unit_Hero_")
+		// 6 inventory + 3 backpack + stash + neutral; scan generously.
+		for i := 0; i < 19; i++ {
+			v := e.Get(fmt.Sprintf("m_hItems.%04d", i))
+			if v == nil {
+				continue
+			}
+			var h uint32
+			switch n := v.(type) {
+			case uint32:
+				h = n
+			case int32:
+				h = uint32(n)
+			default:
+				continue
+			}
+			if h == 0 || h == 0xFFFFFF {
+				continue
+			}
+			// A Source 2 handle carries the entity index in its low 14 bits.
+			idx := int32(h & 0x3FFF)
+			tier, isFam := famTier[idx]
+			if !isFam || credited[idx] {
+				continue
+			}
+			credited[idx] = true
+			if st.LotusByHero[hero] == nil {
+				st.LotusByHero[hero] = map[string]int{}
+			}
+			st.LotusByHero[hero][tier]++
 		}
 		return nil
 	})
+	// Counts are finalised by the caller after Start(); expose the maps for that.
+	st.finish = func() {
+		st.LotusSeen = len(famTier)
+		st.LotusTotal = len(credited)
+	}
 	return st
 }

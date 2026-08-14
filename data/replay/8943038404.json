@@ -1,6 +1,42 @@
 {
  "matchId": "8943038404",
- "parserVersion": 1,
+ "parserVersion": 2,
+ "entities": {
+  "lotusByHero": {
+   "Bane": {
+    "great": 1,
+    "small": 2
+   },
+   "Hoodwink": {
+    "great": 2,
+    "greater": 1,
+    "small": 2
+   },
+   "Kez": {
+    "great": 1,
+    "small": 5
+   },
+   "Largo": {
+    "small": 1
+   },
+   "Necrolyte": {
+    "great": 14,
+    "greater": 5,
+    "small": 1
+   },
+   "Ringmaster": {
+    "great": 2,
+    "greater": 1,
+    "small": 1
+   },
+   "StormSpirit": {
+    "greater": 2,
+    "small": 1
+   }
+  },
+  "lotusEntitiesCredited": 42,
+  "lotusEntitiesSeen": 42
+ },
  "heroes": {
   "npc_dota_hero_bane": {
    "watchers": 2,
