@@ -263,6 +263,33 @@ exactly where a rate-vs-total confusion in the scoring engine would show up.
 
 ---
 
+## Selection rule — CONFIRMED, and it answers spec open item 4
+
+**A banner counts only the 2 best matches of its best series — and the best series is chosen
+per banner, so different roles on the same lineup can count different series.**
+
+Stated by the user 2026-08-14 and consistent with everything measured: gpk~'s counted maps
+were pinned to one series by two independent emblems, and Dukalis + 9Class pinned to a
+different series again.
+
+This resolves the spec's open item 4 ("best-series selection scope — per player, per role,
+or per banner?"). The answer is **per banner** (i.e. per role), not per player and not once
+for the whole lineup.
+
+Consequences that matter for the engine:
+
+- Selection must be redone for **every** counterfactual, because which series wins depends
+  on the emblems being scored. This is what the spec means by calling it a selection problem
+  rather than a sum.
+- The search space per role is small: for each series the player appeared in, every pair of
+  its maps. That is what `scripts/calibrate.mjs` enumerates, which is why it can pin counted
+  maps from a single confirmed stat.
+- A pair role shares one selection across both players; a solo role has its own.
+- **A 2-0 series still offers only one pair**, so best-2-of-3 is a no-op there — and that is
+  exactly why Вирішайло never fires for a swept series.
+
+---
+
 ## Calibration against real in-client banners (2026-08-13)
 
 Two banners transcribed from client screenshots, in `test/fixtures/banner-observation-*.json`.
