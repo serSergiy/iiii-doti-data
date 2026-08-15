@@ -333,25 +333,32 @@ parsing one. Everything else comes from OpenDota.
 Intent was: park the `.dem.bz2` as a **GitHub Release asset** (not in the git tree) so that
 deciding in September to add watchers/lotuses doesn't run into expired replays.
 
-**Phase 0 found this is not currently executable.** Cluster 413 returns 403 on
-`replay{n}.valve.net` and OpenDota's `.com.cn` URL is unreachable from here — so there is
-no replay to park. Revisit if playoff matches land on a different cluster.
+**Phase 0 found this is not currently executable — SUPERSEDED the same day.** Cluster 413
+does return 403 on `replay{n}.valve.net`, but `replay413.dota2.com.cn` serves it fine; the
+"unreachable" reading came from testing with Node's `fetch`, which cannot reach that host,
+and `curl` can. Replays are downloaded and parsed — see `scripts/fetch-replays.sh` and
+docs/FINDINGS.md. The Release-asset hedge was never needed.
 
 What *is* still worth doing from day one, and costs nothing: record `replay_salt` +
 `cluster` (from OpenDota, present 10/10) in every per-match file. If a download route is
 ever found, the salts are the irreplaceable half and they are captured. Retention kills
 the `.dem`; it doesn't kill a 10-digit integer in git.
 
-Accept the residual risk explicitly: **if no download route is found, watchers and lotuses
-are permanently unavailable for TI 2026** and must be surfaced as `null` in the UI rather
-than approximated.
+Accept the residual risk explicitly: if no download route is found, watchers and lotuses
+are permanently unavailable for TI 2026 and must be surfaced as `null` in the UI rather
+than approximated. *(A route was found; the risk did not materialise. Retained because the
+`null`-not-approximated rule still governs every map we lack a replay for.)*
 
-### 3.2 The parser itself
+### 3.2 The parser itself — BUILT
 
-Deferred past v1. Go/Manta or Java/Clarity, installed in the workflow (neither Go nor a
-modern JDK is on this machine — local Java is 1.8, Clarity wants 11+ — but CI installs
-whatever it needs, so this is not a local constraint). Stream-download → parse → discard,
-one replay at a time; never commit `.dem` files to the tree.
+Go/Manta v1.5.0 in `tools/replay-parser/`, driven by `scripts/parse-replays.sh` (host Go if
+present, Docker otherwise) and wired into the ingest workflow. It reads the game's OWN
+per-player counters out of `CDOTA_PlayerResource` rather than reconstructing them from the
+combat log — validated at 290/290 against OpenDota on nine independent fields.
+
+Deviation from the plan above, deliberate: **`.dem` files are kept locally**, not discarded
+after parsing. Retention is finite, and a `ParserVersion` bump needs the original. CI still
+discards (`KEEP_DEM=0`) because a runner has ~14 GB. They remain gitignored either way.
 
 ### 3.3 Cheaper alternatives to try first
 
