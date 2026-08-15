@@ -46,6 +46,8 @@ type output struct {
 	MatchID       string                `json:"matchId"`
 	ParserVersion int                   `json:"parserVersion"`
 	Entities      *entityStats          `json:"entities"`
+	// The game's own per-player counters. Authoritative — supersedes every heuristic here.
+	GameStats map[int]*gameStat `json:"gameStats"`
 	Heroes        map[string]*heroStats `json:"heroes"`
 	TormentorLog  []tormentorEvent      `json:"tormentorLog"`
 	Notes         map[string]string     `json:"notes"`
@@ -92,6 +94,7 @@ func main() {
 	}
 
 	ents := trackEntities(p)
+	gs := trackGameStats(p)
 
 	// Heroes that have damaged the currently-alive tormentor. Reset on each death, so a
 	// second tormentor does not inherit the first one's damage list.
@@ -149,8 +152,9 @@ func main() {
 
 	res := output{
 		MatchID:       matchID,
-		ParserVersion: 2,
+		ParserVersion: 3,
 		Entities:      ents,
+		GameStats:     gs,
 		Heroes:        heroes,
 		TormentorLog:  log,
 		Notes: map[string]string{
