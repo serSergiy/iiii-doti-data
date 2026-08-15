@@ -1,0 +1,30 @@
+{
+ "schema": "ti2026-banner-observation/1",
+ "capturedAt": "2026-08-15",
+ "source": "in-client screenshot, manually transcribed. Support role only — the capture shows one role.",
+ "player": "sersergiy",
+ "title": { "prefix": "Потойбічний", "suffix": "Вирішайло" },
+ "format": "group",
+ "roles": {
+  "support": {
+   "label": "ПІДТРИМКА", "players": ["Cr1t-", "Sneyking"],
+   "emblems": [
+    { "slot": 1, "color": "blue",  "stat": "obsPlaced", "statUk": "ОГЛЯДОВИХ ВАРДІВ", "percent": 270, "score": 7919.61 },
+    { "slot": 2, "color": "green", "stat": "tormentor", "statUk": "УБИТО МУЧИТЕЛІВ",  "percent": 200, "score": 6557.34 },
+    { "slot": 3, "color": "blue",  "stat": "lotuses",   "statUk": "ЗІБРАНО ЛОТУСІВ",  "percent": 170, "score": 3083.26 }
+   ],
+   "emblemSum": 17560.21, "observedTotal": 17560.21, "delta": 0, "impliedMultiplier": 1.0,
+   "countedSeries": 1130534,
+   "countedMaps": [8946161660, 8946285985]
+  }
+ },
+ "notes": [
+  "DECISIVE — this is the first observed banner where a PREFIX and a SUFFIX fire on the same map, which docs/SCORING.md §5 had explicitly left unresolved.",
+  "Game 3 (8946285985) qualifies for both: Потойбічний +7% (both supports on pool heroes 85 and 26) and Вирішайло +16% (last possible game of a 3-game series). Solving the map multiplier from each emblem independently gives 1.229999 / 1.230000 / 1.230004 — i.e. exactly 1.23.",
+  "1 + 0.16 + 0.07 = 1.23 ADDITIVE. The multiplicative reading (1.07 x 1.16 = 1.2412) overshoots every emblem by ~0.36% and is REFUTED.",
+  "Game 1 (8946161660) carries multiplier exactly 1.0: neither support was on a pool hero and it is not the decider. That pins the pair as well as the stacking.",
+  "The emblem scores are DIVIDED by the 2 players in the role, and Очки is their plain sum (17560.21). Note this differs from the Elleyer worked example in SCORING.md §2, which read the emblem as undivided — one of the two readings is wrong and this one is pinned by three independent emblems.",
+  "Counted maps are games 1 and 3 of the GamerLegion series, NOT the TEAM VISION series. Under both the real emblem set and the smokes variant, GamerLegion is the higher-scoring series in our data, so any engine selecting TEAM VISION here has a selection bug.",
+  "Independent corroboration: the same additive model scores the TEAM VISION pair at exactly 15384.11, which is the support observedTotal recorded in banner-observation-sersergiy.json from an earlier day."
+ ]
+}

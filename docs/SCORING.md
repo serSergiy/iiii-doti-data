@@ -27,7 +27,7 @@ https://sersergiy.github.io/iiii-doti-data/data/meta.json    version, counts, co
   "generatedAt": "…",
   "columns": ["matchId","accountId",…],   // row field order
   "unsourced": [],                          // nothing is unconditionally null now
-  "replayDerived": ["lotus","watcher","madstone"], // null unless that match's replay is parsed
+  "replayDerived": ["lotus","watcher","madstoneGame","tormentorGame"], // null unless that match's replay is parsed
   "unvalidated": { "<col>": "why to distrust it" },
   "players": { "<accountId>": { "name": "…", "teamId": 0 } },
   "matches": { "<matchId>": {
@@ -52,22 +52,31 @@ Repo-side reference data, if you want it in the UI:
 
 ```
 emblemPoints = SUM over the 2 counted maps of
-                 [ SUM over the role's players of ( stat × prefixMult(player, map) ) ]
-                 × suffixMult(map)
+                 SUM over the role's players of
+                   stat × ( 1 + prefixBonus(player, map) + suffixBonus(map) )
                × coefficient
                × emblemPercent
+               ÷ number of players in the role
 
-roleScore    = SUM of the role's 3 emblemPoints  ÷  number of players in the role
+roleScore    = SUM of the role's 3 emblemPoints
 bannerScore  = SUM of the 3 roleScores
 ```
 
-Three things that are easy to get wrong, all of them confirmed:
+Things that are easy to get wrong, all of them confirmed:
 
-- **The prefix is per player per map.** It multiplies only the qualifying player's
+- **The prefix is per player per map.** It applies only to the qualifying player's
   contribution, because it depends on the hero *that player* picked in *that game*.
-- **The suffix is per map.** It multiplies the whole map term.
-- **The ÷ player count produces the role score.** Core and support are 2, mid is 1. The
-  emblem number the client *displays* is the undivided sum.
+- **The suffix is per map.** It applies to every player's contribution on that map.
+- **The two bonuses ADD, they do not compose.** `1 + p + s`, never `(1+p)(1+s)` — see §5.
+- **The ÷ player count is inside the emblem.** Core and support are 2, mid is 1. The emblem
+  number the client displays is **already divided**, and the role total the client shows is
+  the plain sum of its three displayed emblems.
+
+> ⚠️ That last point contradicts the Elleyer worked example below, which read the displayed
+> emblem as *undivided*. The two cannot both be right. `banner-observation-sersergiy-2` pins
+> the divided reading with three independent emblems agreeing to the cent, and
+> `test/banner.test.mjs` holds it; the Elleyer figures below are left as recorded but should
+> be re-derived before being trusted. Treat the divided reading as current.
 
 ### Worked example — verified to the cent
 
@@ -179,11 +188,30 @@ Per-map conditions. Computable ones are precomputed per map in
 last one played. A Bo3 that ends 2-0 never reaches game 3, so Вирішайло never fires for it.
 That single rule is why a mid banner often reads exactly ×1.000000.
 
-### Stacking
+### Stacking — **RESOLVED: ADDITIVE** (2026-08-15)
 
-Unresolved: whether prefix and suffix add (`1+p+s`) or multiply (`(1+p)(1+s)`) when both
-fire on one map. No observed banner has had both fire together. Pick one, and surface it as
-an assumption.
+When a prefix and a suffix both fire on one map the map multiplier is **`1 + p + s`**, not
+`(1+p)(1+s)`.
+
+`banner-observation-sersergiy-2` is the first capture where both fire together. Support =
+Cr1t- + Sneyking, prefix Потойбічний +7%, suffix Вирішайло +16%, counted maps 8946161660 and
+8946285985. Game 3 qualifies for both. Solving the game-3 multiplier independently from each
+of the three emblems:
+
+| emblem | implied multiplier |
+|---|---|
+| ОГЛЯДОВИХ ВАРДІВ | 1.229999 |
+| УБИТО МУЧИТЕЛІВ | 1.230000 |
+| ЗІБРАНО ЛОТУСІВ | 1.230004 |
+
+`1 + 0.16 + 0.07 = 1.23`. The multiplicative reading gives 1.2412 and overshoots every
+emblem by ~0.36%. Game 1 pins the rest: neither support was on a pool hero and it is not the
+decider, so its multiplier is exactly 1.0.
+
+**If your engine multiplies, this is the bug** — it inflates any map where both fire, and
+because selection maximises, an inflated map can also change which series gets counted.
+
+`test/banner.test.mjs` reproduces the banner to the cent and pins the refutation.
 
 ---
 
@@ -224,7 +252,9 @@ These are correctness requirements, not styling.
 
 | stat | state |
 |---|---|
-| **watchers, lotuses, madstone** | **NOW SHIPPING**, from the game's own counters in the replay (`m_iWatchersTaken`, `m_iLotusesTaken`, `m_nAcquiredMadstone`). Validated: watchers reproduce banner-derived ground truth exactly (tOfu 5, Boxi 7), and `m_iLastHitCount` matches OpenDota on all 20 player-maps checked. Present only for matches whose replay is parsed — see `stats.json.replayDerived` and `meta.json.coverage`; currently ~0.48 of rows. `null` elsewhere, never 0. |
+| **watchers, lotuses** | **SHIPPING**, from the game's own `m_iWatchersTaken` / `m_iLotusesTaken`. Genuinely per-player — neither is ever identical across a match's ten players. Watchers reproduce banner-derived ground truth exactly (tOfu 5, Boxi 7), and the nine counters cross-checkable against OpenDota agree 290/290. Present only where a replay is parsed — see `stats.json.replayDerived` and `meta.json.coverage`. `null` elsewhere, never 0. |
+| **madstone** | **AN ESTIMATE — badge it.** `madstoneUses × 1.97`, where `madstoneUses` is measured (`item_uses.madstone_bundle`, 80/80 against the replay) but counts *bundles*, not the madstones the stat scores. The multiplier is the midpoint of two banner-derived bands (1.63–1.75× and 2.20–2.31×) that **do not overlap**, so no constant fits both and this is wrong by up to ~17% on any map. It is a scalar multiple, so it ranks players correctly and must not be quoted as a count. **Do not use `madstoneGame`** (the game's own `m_nAcquiredMadstone`): all ten players share one value on 43 of 63 maps — it tracks duration in steps, not the player. |
+| **tormentor** | **Score `tormentorGame`, not `tormentorSelf`.** УБИТО МУЧИТЕЛІВ is **participation** — the game's own `m_iTormentorKills` credits every hero who damaged the tormentor (mean 2.87 credits per tormentor death), not just the last hitter. Proved on the `meow` banner, whose counted maps are pinned by towers and smokes: implied 2.0000 units, `tormentorGame` = 2, `tormentorSelf` = 1. Replay-derived, so `null` on unparsed maps — do **not** fall back to `tormentorSelf`, the two differ by ~3×. `tormentorSelf`/`tormentorTeam` remain in the schema as evidence only. |
 | prefix/suffix stacking | see §5 |
 | Щасливчик digit | two readings emitted; pick one when a banner settles it |
 | Кат | uncomputable, mark unsupported |
