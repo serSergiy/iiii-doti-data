@@ -19,7 +19,10 @@ n=0; skip=0
 for f in replays/*.dem.bz2; do
   base=$(basename "$f" .dem.bz2)
   id=${base%%_*}
-  if [ -s "data/replay/${id}.json" ]; then skip=$((skip+1)); continue; fi
+  # Re-parse when the parser version moved on; the file alone is not enough.
+  want=$(grep -o 'ParserVersion: [0-9]*' tools/replay-parser/main.go | grep -o '[0-9]*')
+  have=$(node -e "try{console.log(require('./data/replay/${id}.json').parserVersion||0)}catch{console.log(0)}")
+  if [ -s "data/replay/${id}.json" ] && [ "$have" = "$want" ]; then skip=$((skip+1)); continue; fi
   echo "parsing $id..."
   MSYS_NO_PATHCONV=1 docker run --rm -v "$PWD:/w" -w /w "$IMG" \
     ./tools/replay-parser/parse-bin "/w/$f" "/w/data/replay/${id}.json" && n=$((n+1))
