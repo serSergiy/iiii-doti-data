@@ -21,10 +21,19 @@ concurrency:
 permissions:
   contents: write
 
+env:
+  # Replay work is bounded per run so the job cannot outgrow its timeout during a backlog.
+  # Whatever is left is picked up 15 minutes later; both scripts are resumable. Parsing is
+  # the binding cost (~1-2 min each), not the download.
+  MAX_REPLAYS: '6'
+  # The replay host throttles per connection, so concurrency is what makes the download
+  # cheap — see the header of fetch-replays.sh.
+  JOBS: '5'
+
 jobs:
   ingest:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 50
     steps:
       - uses: actions/checkout@v4
 
@@ -44,16 +53,82 @@ jobs:
           OPENDOTA_KEY: ${{ secrets.OPENDOTA_KEY }}
         run: node scripts/ingest.mjs
 
+      # --- replays ---------------------------------------------------------------------
+      # Four stats exist ONLY in the replay — lotus, watcher, madstone and tormentor (which
+      # is participation, so the objective log cannot substitute). Ingest alone therefore
+      # leaves them null, which is why this runs in the same job, right after it.
+      #
+      # Every replay step is continue-on-error ON PURPOSE. Replays come from
+      # replay413.dota2.com.cn, a Perfect World host that is not Valve's and has no uptime
+      # promise; a run that cannot reach it must still commit the OpenDota data. The cost
+      # of a bad day is a null column, correctly labelled, not a broken pipeline.
+      #
+      # UNVERIFIED: reachability of that host from a GitHub-hosted runner has only been
+      # proven from a dev box. If the first scheduled run shows the fetch step failing,
+      # that is the reason — check the step log before assuming the salts went stale, and
+      # fall back to running scripts/fetch-replays.sh locally and committing data/replay/.
+
+      - name: Fetch new replays
+        id: fetch
+        continue-on-error: true
+        run: bash scripts/fetch-replays.sh
+
+      - name: Any replays waiting to be parsed?
+        id: pending
+        run: |
+          n=$(find replays -name '*.dem.bz2' 2>/dev/null | wc -l | tr -d ' ')
+          echo "count=$n" >> "$GITHUB_OUTPUT"
+          echo "$n replay(s) on disk"
+          # Gates the Go toolchain setup below: on a quiet run there is nothing to build.
+
+      - uses: actions/setup-go@v5
+        if: steps.pending.outputs.count != '0'
+        with:
+          go-version: '1.24'
+          cache-dependency-path: tools/replay-parser/go.sum
+
+      - name: Parse replays
+        if: steps.pending.outputs.count != '0'
+        continue-on-error: true
+        env:
+          # A runner has ~14 GB and is destroyed at the end of the job, so the .dem is
+          # dropped once its ~20 KB of JSON exists. Locally the default is the opposite —
+          # see the note in the script; Valve's retention is finite.
+          KEEP_DEM: '0'
+        run: bash scripts/parse-replays.sh
+
+      - name: Verify every parsed replay against OpenDota
+        continue-on-error: true
+        run: node scripts/verify-replays.mjs
+        # parse-replays.sh already rejects a bad parse as it happens; this re-checks the
+        # whole committed corpus, which is the only thing that would catch a replay that
+        # went in before that gate existed. Non-fatal: it reports, it does not block.
+
+      - name: Re-derive so the replay stats reach stats.json
+        if: steps.pending.outputs.count != '0'
+        run: node scripts/ingest.mjs --rederive
+        # The per-match files cache their rows and the ingest diff skips anything already
+        # 'ok', so a replay parsed AFTER that diff would otherwise never reach the data.
+
+      # --- publish ---------------------------------------------------------------------
+      - name: Rebuild the draft page's data
+        run: node scripts/build-draft-data.mjs
+        # tools/draft-data.js is committed (draft.html is opened over file://, where fetch
+        # of a sibling JSON is blocked by CORS). It must move with data/ or it goes stale.
+
       - name: Commit if anything changed
         run: |
           git config user.name  'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add data
+          git add data tools/draft-data.js
           if git diff --cached --quiet; then
             echo 'nothing changed — no commit'
             exit 0
           fi
           matches=$(node -e "console.log(require('./data/meta.json').matchCount)")
           rows=$(node -e "console.log(require('./data/meta.json').rowCount)")
-          git commit -m "data: ${matches} matches, ${rows} rows"
+          replays=$(find data/replay -name '*.json' 2>/dev/null | wc -l | tr -d ' ')
+          git commit -m "data: ${matches} matches, ${rows} rows, ${replays} replays"
+          # Rebase rather than fail: a concurrent manual push should not cost a whole cycle.
+          git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
           git push
