@@ -162,8 +162,8 @@ runs it in Docker.
 | **Watchers** | `ability_capture` combat-log events | **RECOVERED**, per hero |
 | Lamps | `ability_lamp_use` | Recovered — emitted so the API conflation is measurable |
 | **Madstones** | `item_madstone_bundle` ITEM events | **RECOVERED**, per hero |
-| Tormentor kills | `npc_dota_miniboss` DEATH, killer | Recovered (last hitter) |
-| Tormentor participation | heroes damaging a tormentor that then died | Recovered, **but see caveat** |
+| Tormentor kills | `npc_dota_miniboss` DEATH, killer | Recovered (last hitter) — **not the fantasy stat**, see below |
+| **Tormentor participation** | the game's own `m_iTormentorKills` | **RECOVERED**, per player — this is the stat |
 | **Lotuses** | — | **NOT RECOVERABLE from the combat log.** No lotus pickup event exists; the only lotus strings are `item_lotus_orb`, an unrelated item. Would need entity-level work on `CDOTA_BaseNPC_LotusPool` |
 
 **Critical attribution gotcha:** use `attacker_name`, **not** `damage_source_name`. The
@@ -187,11 +187,12 @@ overstate watchers by **9.3×**.
 > real in-client score confirms it. The madstone agreement above is much stronger evidence
 > than this.
 
-**Tormentor participation is under-counted and should not be trusted yet.** The damager
-list came back with a single hero per tormentor kill, which is implausible for a real
-tormentor fight. The combat log's own assist list (`assist_players`) is empty for miniboss
-deaths, so participation has to be derived from damage events, and the current derivation
-is evidently missing most of them. Unresolved.
+**Tormentor participation from the combat log is under-counted — SUPERSEDED, see the
+section below.** The damager list came back with a single hero per tormentor kill, which is
+implausible for a real tormentor fight. The combat log's own assist list (`assist_players`)
+is empty for miniboss deaths, so participation had to be derived from damage events, and
+that derivation was evidently missing most of them. Resolved by not deriving it at all: the
+game keeps its own per-player counter, `m_iTormentorKills`.
 
 ---
 
@@ -396,13 +397,14 @@ coefficient is a given, and the unit count is the unknown.
 | ПІДНЯТІ ЛОТОСИ | "за **піднятий** лотос" | per lotus **picked up** — so `item_uses` (eaten) was always the wrong shape |
 | ПРИГОЛОМШЕННЯ | "за **секунду** приголомшення" | per second — matches OpenDota `stuns` to five decimals |
 | УЧАСТЬ У БИТВАХ | "**Макс.** 2 124,00" | a 0..1 fraction scaled to a cap, not a per-unit rate |
-| УБИВСТВА МУЧИТЕЛІВ | "за **вбивство** мучителя" | per **kill** — argues the last-hitter reading is right and "credits all participants" is wrong |
+| УБИВСТВА МУЧИТЕЛІВ | "за **вбивство** мучителя" | per **kill** — was read as last-hitter-only; **that reading is REFUTED by a banner**, see "Tormentors are participation" |
 | ВИКОРИСТАНО ДИМІВ | "за **використаний** Дим омани" | no kill requirement — argues against the prior-art "only smokes used in a kill" theory |
 | СМЕРТІ | "1 950 початково, -195 за смерть" | confirms the base-minus-per-death shape, and the game does not clamp |
 
 Two mapping notes flipped from "uncertain" to "probably right" on this evidence
 (tormentor = last hitter, smokes = every use), and two stayed blocked but got sharper: a
-watcher is a **completed capture**, a lotus is a **pickup**.
+watcher is a **completed capture**, a lotus is a **pickup**. The tormentor half of that has
+since been **retracted** — the wording is per-kill, but a kill credits everyone who hit it.
 
 ### The rune shortfall is now a measurable defect, not a mystery
 
@@ -862,6 +864,205 @@ correct mapping must total exactly 0 across them. Measured over those two maps:
 8.2× vs battlepass.ru's 1.5× conflation ratio that did not reconcile. The real watcher
 stat remains unidentified, and a zero-valued emblem can only rule mappings out, never
 confirm one.
+
+### TORMENTORS ARE PARTICIPATION, NOT THE LAST HIT — SOLVED (2026-08-15)
+
+The question the whole mapping turned on: does УБИТО МУЧИТЕЛІВ credit only the hero who
+landed the killing blow, or everyone who hit the tormentor? **Everyone who hit it.**
+
+The glossary wording ("за **вбивство** мучителя") reads as per-kill and was taken as
+last-hitter-only. A banner refutes that reading directly. `meow`, mid = Nisha, one player,
+so no pairing ambiguity:
+
+| | value |
+|---|---|
+| УБИТО МУЧИТЕЛІВ | 4 395.00 at 250%, coef 879 |
+| implied raw units | 4395 ÷ 2.50 ÷ 879 = **2.0000 exactly** |
+
+The counted maps are pinned independently by the other two emblems on the same banner —
+towers 3 + 1 = 4 (matching 3520 ÷ 2.50 ÷ 352 = 4.0000) and smokes 0 + 0 = 0 (matching a
+0.00 emblem) — so the pair is **8943091110 + 8943148045**, not fitted.
+
+| candidate | total over those maps | verdict |
+|---|---|---|
+| `tormentorSelf` — objective-log last hitter | 1 | **REFUTED** |
+| `tormentorGame` — the game's own `m_iTormentorKills` | **2** | matches 2.0000 |
+
+`m_iTormentorKills` is a per-player counter the game itself keeps in the replay, so this is
+not a derivation that could be missing damage events — it is what the client counts. Across
+all 29 parsed replays it awards **155 credits over 54 tormentor deaths, mean 2.87 per
+death**, with up to 4 heroes credited for a single kill. A last-hitter counter would award
+exactly 1. That distribution is participation, and it is what the fantasy stat scores.
+
+Shipped as the `tormentorGame` column and wired as `tormentor` in `tools/draft-data.js`.
+`tormentorSelf` and `tormentorTeam` are kept as columns — they are cheap, they need no
+replay, and they are the evidence this conclusion rests on — but **nothing should score off
+them**. The two differ by ~3×, so mixing them is not a rounding error.
+
+**Coverage cost:** `m_iTormentorKills` only exists where a replay was parsed — currently
+**47.5%** of player-maps. On the rest `tormentor` is `null`. Filling those with
+`tormentorSelf` would understate by roughly 3×, so the null stands; the UI must show it as
+"no replay", never as a zero. Same rule as lotus / watcher / madstone.
+
+### The replay's own counters are trustworthy — 290/290 on nine fields (2026-08-15)
+
+Before leaning on `m_iTormentorKills`, the extraction behind it was checked against a source
+that can disagree. Every `CDOTA_PlayerResource` counter that OpenDota also reports, compared
+per player per map across all parsed replays:
+
+| counter | agreement |
+|---|---|
+| `m_iLastHitCount` / `m_iDenyCount` | 290/290 |
+| `m_iRunePickups` / `m_iCampsStacked` | 290/290 |
+| `m_iObserverWardsPlaced` | 290/290 |
+| `m_iCourierKills` / `m_iRoshanKills` / `m_iTowerKills` | 290/290 |
+| `m_iSmokesUsed` | 289/290 |
+
+Nine independent fields, exact, with attribution by `m_iPlayerSteamID` rather than by hero
+name. Whatever else is uncertain, **the parser reads the right struct and assigns it to the
+right player** — so a replay counter that looks strange is the field meaning something
+unexpected, not a parsing bug.
+
+### ⚠️ `m_nAcquiredMadstone` IS NOT PER-PLAYER MADSTONE — the shipped mapping is wrong
+
+Applying that same scrutiny to Безумруди breaks it. Across the 280 rows with a replay,
+`m_nAcquiredMadstone` equals OpenDota's `item_uses.madstone_bundle` **once**. Worse, it does
+not behave like a collection stat at all:
+
+- On **21 of 30 maps all ten players carry the identical value** — e.g. 8942993144, where
+  every player reads exactly 36 while their bundle uses range 1 to 31.
+- Where it does vary, it varies in a tight band unrelated to farm: 8943000927 reads
+  17–23 across all ten, and the two players who used **zero** bundles read 17 and 19.
+
+A per-player collection counter cannot do that; the 290/290 result above rules out
+attribution error as the cause. The field is a snapshot of something shared or
+inventory-held, not madstone cumulatively acquired by that player.
+
+**Consequence: the `madstone` column and `tools/draft-data.js`'s madstone stat were scoring a
+number that is provably not the stat.** Note this does not restore `madstoneUses` either —
+that reading is independently refuted (two banners need 1.63–1.75× and 2.20–2.31× of it,
+bands that do not overlap). Resolved below by shipping an openly-labelled estimate instead;
+the raw counter is retained as `madstoneGame`, for evidence only.
+
+### What `m_nAcquiredMadstone` actually tracks: match duration, in steps
+
+Asked directly whether the game's madstone number scales with match length — it does, and
+that is the whole of it. Taking the maximum across each match's ten players:
+
+| duration | max counter |
+|---|---|
+| 21–25 min | 16 |
+| 32–36 min | 26 |
+| 37–61 min | **36** (25 consecutive maps, no variation) |
+| 62–71 min | 46 |
+| 72–76 min | 50, then 75 |
+| 94.6 min | 151 |
+
+It is a monotone step function that every player converges onto: on 43 of 63 maps all ten
+share the identical value, and the 37–61 minute plateau alone covers a third of the
+tournament. A stat that reads 36 for the hard-support and 36 for the carry is not measuring
+either of them. Correlation with duration is 0.65 — and that understates it, since the
+plateaus are exact.
+
+### The measured alternative, and why it is not scaled by duration again
+
+`item_uses.madstone_bundle` behaves the way a collection stat should:
+
+| position | mean bundles / map |
+|---|---|
+| pos 1 | 23.6 |
+| pos 2 | 12.3 |
+| pos 3 | 15.6 |
+| pos 4 | 2.5 |
+| pos 5 | 2.6 |
+
+A 9× spread between carry and hard support, never degenerate across a match, and agreeing
+with the replay's own combat-log events on 80/80 player-maps. The ten-player sum tracks
+duration at **r = 0.85, ~2.20 bundles per minute** (intercept 6.9).
+
+That last figure is the reason `madstone` is **not** additionally scaled by match length:
+duration is already inside `madstoneUses`. Multiplying by it again would double-count the
+same effect. Per player the duration correlation is much weaker (0.62 for pos 1 down to
+0.37 for pos 4) because farm priority dominates — another reason a duration-driven model
+would be worse than the measured count, not better.
+
+**Shipped:** `madstone = madstoneUses × 1.97`, the midpoint of the two irreconcilable
+banner bands, which minimises worst-case error at about ±17%. Flagged in
+`stats.json.unvalidated`. Because it is a scalar multiple it preserves player ordering
+exactly — safe to rank on, unsafe to quote as a count. Replacing it needs one banner
+carrying a ЗІБРАНИЙ ЛЮТИТ emblem whose counted maps are pinned by another stat; none of the
+five observed banners has one.
+
+### A BAD REPLAY PARSES CLEANLY — two silent failure modes, both now gated (2026-08-15)
+
+Backfilling the tournament's replays turned up two ways to get wrong data with a zero exit
+code. Neither announces itself, and both would have gone straight into a commit.
+
+**1. A truncated `.dem` parses "successfully".** manta reads the stream until it ends and
+reports the entity state it reached, so a half-downloaded replay yields a complete-looking
+JSON of *mid-game* numbers. One read 481 last hits against a true 756 — the shape is right,
+every field is populated, nothing errors.
+
+**2. A parse can silently drop half the players.** Two replays held a correct Radiant five
+and no Dire at all. Every value present agreed with OpenDota exactly, so any check that
+compares "the players we have" passes them. Re-parsing the same `.dem` produced all ten,
+so the file was fine and the earlier parse was not — these were parsed while the download
+was still in flight.
+
+Both are caught by `scripts/verify-replays.mjs`, which is a **hard gate, not a heuristic**:
+nine of the replay's per-player counters are also reported by OpenDota, and on a sound
+replay they agree 290/290, so any disagreement at all condemns the parse. It checks the
+player *count* first, because failure mode 2 is invisible to a value comparison.
+`parse-replays.sh` runs it per match and discards what fails; CI re-runs it over the whole
+committed corpus.
+
+The download side is gated separately, on the server's `Content-Length` — including the
+overshoot case, where a resume appends onto bytes it should have overwritten. Resuming can
+never repair a too-long file, so it is discarded and re-fetched.
+
+**Operational note:** the replay host throttles per connection at ~0.25 MB/s but not per
+host — a second concurrent stream measured 7.5 MB/s. Fetching serially took ~4 hours for
+this set; at `JOBS=5` it took minutes. Do not "fix" the fetcher back to a simple loop.
+
+### PREFIX + SUFFIX STACKING: ADDITIVE — SOLVED (2026-08-15)
+
+The last open question in the scoring formula. Until now no captured banner had a prefix and
+a suffix firing on the same map, so `1+p+s` and `(1+p)(1+s)` were both live.
+
+A support banner for Cr1t- + Sneyking (Потойбічний +7%, Вирішайло +16%) settles it. Its
+counted maps are games 1 and 3 of the GamerLegion series (8946161660, 8946285985), and game
+3 qualifies for **both** bonuses — both supports on pool heroes, and the decider of a 3-game
+series. Game 1 qualifies for neither, so its multiplier is exactly 1.0 and the pair is
+pinned rather than fitted.
+
+Solving the game-3 multiplier separately from each emblem:
+
+| emblem | arithmetic | implied multiplier |
+|---|---|---|
+| ОГЛЯДОВИХ ВАРДІВ | (28 + 18·X) × 117 × 2.70 ÷ 2 = 7919.61 | **1.229999** |
+| УБИТО МУЧИТЕЛІВ | (5 + 2·X) × 879 × 2.00 ÷ 2 = 6557.34 | **1.230000** |
+| ЗІБРАНО ЛОТУСІВ | (12 + 7·X) × 176 × 1.70 ÷ 2 = 3083.26 | **1.230004** |
+
+Three independent emblems, three different stat magnitudes, one answer: **1.23 = 1 + 0.16 +
+0.07**. Multiplicative would be 1.2412 and overshoots every emblem by ~0.36%.
+
+**Independent corroboration.** Scoring the *other* series (TEAM VISION) with the same
+additive model gives exactly **15384.11** — the support `observedTotal` recorded in
+`banner-observation-sersergiy.json` days earlier. Two banners, different series, both exact.
+
+Two further consequences fell out of the same capture:
+
+- **Displayed emblems are divided by the role's player count**, and the role total shown is
+  the plain sum of them (7919.61 + 6557.34 + 3083.26 = 17560.21 = Очки). This contradicts
+  the Elleyer worked example in SCORING.md §2, which read the emblem as undivided. This
+  reading is the better-evidenced one and is now what the spec states.
+- **Stacking bugs move the selection, not just the score.** Because a banner counts the
+  *best* pair, over-weighting maps where both bonuses fire can hand the selection to the
+  wrong series entirely — which is how a wrong multiplier shows up as "the tool picked a
+  different series than my client".
+
+Pinned by `test/banner.test.mjs`, which reproduces the banner to the cent and asserts the
+multiplicative reading fails.
 
 ---
 

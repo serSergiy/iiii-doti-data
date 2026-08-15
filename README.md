@@ -38,11 +38,23 @@ no configuration. Pages forces `Cache-Control: max-age=600` with no override —
 | `data/matches/{id}.json` | Per-match detail + retry state. Fetch lazily on drill-in. |
 | `data/raw/{id}.json.gz` | Trimmed raw payload — the re-derivation substrate. ~10 KB/match. |
 
-Rows are arrays ordered by `stats.json.columns`. Two conventions the consumer must respect:
+| `data/replay/{id}.json` | The game's own per-player counters, pulled out of the replay. ~20 KB/match. |
 
-- **`lotus` and `watcher` are always `null`.** No source exposes them (see FINDINGS 0.2).
-  They are `null`, never `0`, so "no data" stays distinguishable from "played and scored
-  zero". Do not coerce them.
+Rows are arrays ordered by `stats.json.columns`. Three conventions the consumer must
+respect:
+
+- **`stats.json.replayDerived` columns are `null` where no replay was parsed** — currently
+  `lotus`, `watcher`, `madstoneGame`, `tormentorGame`. `null`, never `0`, so "no data" stays
+  distinguishable from "played and scored zero". Check `meta.json.coverage` per column
+  rather than assuming; do not coerce.
+- **`madstone` is an estimate, not a count.** `madstoneUses × 1.97`, where the multiplier is
+  a midpoint between two irreconcilable banner readings — right to about ±17%. It ranks
+  players correctly (a scalar multiple preserves order) but must not be quoted as a number
+  of madstones. Do **not** substitute `madstoneGame`: the game's own counter reads the same
+  value for all ten players on 43 of 63 maps. See `docs/SCORING.md` §8.
+- **Score `tormentorGame`, not `tormentorSelf`.** УБИТО МУЧИТЕЛІВ is participation — every
+  hero who damaged the tormentor, not the last hitter. The two differ by ~3×, so
+  `tormentorSelf` is not a usable fallback. See `docs/SCORING.md` §8.
 - **`stats.json.unvalidated`** names stats whose mapping is real but whose definition has
   not been checked against a real in-client score. Badge them; do not present them as
   settled.
@@ -62,6 +74,46 @@ npm test
 
 Golden tests against the committed fixtures. They run in CI **before** ingest, so a
 silently-changed upstream field fails the build instead of committing bad data.
+
+### Replays
+
+Four stats exist only in the replay, so the ingest alone leaves them `null`. Both scripts
+are idempotent and resumable — run them as often as you like:
+
+```bash
+bash scripts/fetch-replays.sh; bash scripts/parse-replays.sh; node scripts/ingest.mjs --rederive
+```
+
+Note the `;` rather than `&&`. Both scripts exit nonzero if *any* single replay failed, which
+is the right signal for CI but the wrong control flow here — one unavailable replay must not
+stop the other seventy-nine from being parsed.
+
+`fetch-replays.sh` pulls every match we hold a salt for into `replays/` (gitignored, ~110 MB
+each). Completeness is checked against the server's `Content-Length`, not mere existence, so
+an interrupted transfer resumes instead of being mistaken for a finished file.
+`parse-replays.sh` runs the Go parser — on the host toolchain if there is one, in Docker
+otherwise — and writes `data/replay/{id}.json`. The `--rederive` pass is what carries those
+counters into `stats.json`; without it the parsed JSON sits there unused, because the ingest
+diff skips matches already marked `ok`.
+
+Every parse is gated by `scripts/verify-replays.mjs`, which cross-checks nine per-player
+counters against OpenDota and rejects anything that disagrees. This is not belt-and-braces:
+a truncated replay parses *successfully* and returns plausible mid-game numbers, and a
+parse can silently drop half the players. Run it over the whole corpus any time:
+
+```bash
+node scripts/verify-replays.mjs
+```
+
+`JOBS=n` sets download concurrency (default 5 — the host throttles per connection, so
+serial fetching is ~30× slower). `MAX_REPLAYS=n` bounds a run. `KEEP_DEM=0` deletes each
+`.dem` once parsed — **CI only**.
+Valve's retention is finite and unpublished, so locally the default keeps them; a replay
+deleted today generally cannot be fetched back, and a future `ParserVersion` bump needs it.
+
+CI does all of this automatically ([`.github/workflows/ingest.yml`](.github/workflows/ingest.yml)),
+four replays per 15-minute run. Every replay step is `continue-on-error`: the replay host is
+Perfect World's, not Valve's, and a bad day there must still commit the OpenDota data.
 
 ## Provenance
 
