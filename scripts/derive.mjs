@@ -42,13 +42,14 @@ export const COLUMNS = [
   'tormentorSelf',
   'tormentorTeam',
   'madstone',
+  'madstoneUses',   // raw item_uses count — evidence, NOT the stat
   'famango',        // raw famango+great+greater count — evidence, NOT a claimed mapping
   'lotus',
   'watcher',
 ];
 
 /** Stats we have no source for at all. Emitted as null, NEVER 0 — see note below. */
-export const UNSOURCED = ['lotus', 'watcher'];
+export const UNSOURCED = ['lotus', 'watcher', 'madstone'];
 
 /**
  * ЗІБРАНО ЛОТУСІВ = famango + great_famango + greater_famango, from item_uses.
@@ -81,10 +82,10 @@ const lotuses = (p) => LOTUS_ITEMS.reduce((a, k) => a + itemUses(p, k), 0);
  */
 export const UNVALIDATED = {
   famango: 'raw item_uses famango+great+greater. NOT confirmed to be the lotus stat — refuted on a pinned-map banner. See docs/FINDINGS.md',
-  madstone: 'item_uses.madstone_bundle — leading candidate for Безумруди, magnitude unconfirmed',
+  madstoneUses: 'raw item_uses.madstone_bundle. NOT the ЗІБРАНИЙ ЛЮТИТ stat — two banners need 1.63-1.75x and 2.20-2.31x of it, bands that do not overlap, so no multiplier or bundle size reconciles them.',
   smokes: 'item_uses.smoke_of_deceit. The OFFICIAL glossary says simply "за використаний Дим омани" with no kill requirement, which argues against the prior-art theory that only smokes used in a kill count.',
   tormentorSelf: 'credits the last hitter — which the OFFICIAL glossary now supports ("за вбивство мучителя", per KILL, not per participation). tormentorTeam is kept only as a fallback reading.',
-  madstone_note: 'ЗІБРАНИЙ ЛЮТИТ is "за зібраний лютит" — per madstone COLLECTED, so a collection count is the right shape.',
+
 };
 
 /** A remake is a map that never really happened. Heuristic — flagged, not trusted. */
@@ -216,6 +217,7 @@ export function deriveMatch(raw, { rosters = {}, gameNo = null } = {}) {
       num(p.courier_kills),
       torm.bySlot.get(p.player_slot) ?? 0,
       p.isRadiant ? torm.bySide.radiant : torm.bySide.dire,
+      null, // madstone: item_uses refuted on two independent banners, see FINDINGS
       itemUses(p, 'madstone_bundle'),
       lotuses(p),
       null, // lotus: mapping retracted, see above
