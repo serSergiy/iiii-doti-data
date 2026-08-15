@@ -30,8 +30,41 @@
     "small": 2
    }
   },
-  "lotusEntitiesCredited": 26,
-  "lotusEntitiesSeen": 28
+  "lotusEntitiesCredited": 70,
+  "lotusEntitiesSeen": 28,
+  "madstoneBundlesByHero": {
+   "EmberSpirit": 2,
+   "Enchantress": 1,
+   "Hoodwink": 3,
+   "LoneDruid": 1,
+   "Mirana": 1,
+   "Pudge": 5,
+   "Razor": 24,
+   "Slardar": 3,
+   "Windrunner": 4
+  },
+  "madstoneChargesByHero": {
+   "EmberSpirit": 2,
+   "Enchantress": 1,
+   "Hoodwink": 3,
+   "LoneDruid": 1,
+   "Mirana": 1,
+   "Pudge": 5,
+   "Razor": 24,
+   "Slardar": 3,
+   "Windrunner": 4
+  },
+  "madstoneGainedByHero": {
+   "EmberSpirit": 2,
+   "Enchantress": 1,
+   "Hoodwink": 3,
+   "LoneDruid": 1,
+   "Mirana": 1,
+   "Pudge": 5,
+   "Razor": 24,
+   "Slardar": 3,
+   "Windrunner": 4
+  }
  },
  "heroes": {
   "npc_dota_hero_centaur": {

@@ -13,7 +13,7 @@
     "small": 1
    },
    "EarthSpirit": {
-    "great": 2,
+    "great": 1,
     "greater": 1,
     "small": 1
    },
@@ -24,7 +24,7 @@
     "small": 3
    },
    "Necrolyte": {
-    "greater": 5
+    "greater": 4
    },
    "Nevermore": {
     "small": 1
@@ -40,8 +40,44 @@
     "small": 3
    }
   },
-  "lotusEntitiesCredited": 43,
-  "lotusEntitiesSeen": 43
+  "lotusEntitiesCredited": 179,
+  "lotusEntitiesSeen": 43,
+  "madstoneBundlesByHero": {
+   "Centaur": 4,
+   "Clinkz": 4,
+   "EarthSpirit": 9,
+   "Elder_Titan": 12,
+   "EmberSpirit": 7,
+   "Lion": 8,
+   "Necrolyte": 49,
+   "Nevermore": 31,
+   "Treant": 7,
+   "Windrunner": 7
+  },
+  "madstoneChargesByHero": {
+   "Centaur": 4,
+   "Clinkz": 4,
+   "EarthSpirit": 9,
+   "Elder_Titan": 12,
+   "EmberSpirit": 7,
+   "Lion": 8,
+   "Necrolyte": 49,
+   "Nevermore": 31,
+   "Treant": 7,
+   "Windrunner": 7
+  },
+  "madstoneGainedByHero": {
+   "Centaur": 4,
+   "Clinkz": 4,
+   "EarthSpirit": 9,
+   "Elder_Titan": 12,
+   "EmberSpirit": 7,
+   "Lion": 8,
+   "Necrolyte": 49,
+   "Nevermore": 31,
+   "Treant": 7,
+   "Windrunner": 7
+  }
  },
  "heroes": {
   "npc_dota_hero_centaur": {

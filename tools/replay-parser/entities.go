@@ -48,6 +48,10 @@ type entityStats struct {
 	// plus the charges those bundles carried.
 	MadstoneByHero        map[string]int `json:"madstoneBundlesByHero"`
 	MadstoneChargesByHero map[string]int `json:"madstoneChargesByHero"`
+	// Every +1 of charge on a bundle is one madstone COLLECTED. Credited to whichever
+	// hero was holding that bundle at the time, which is the literal reading of
+	// "за зібраний лютит".
+	MadstoneGainedByHero map[string]int `json:"madstoneGainedByHero"`
 
 	finish func() `json:"-"`
 }
@@ -70,10 +74,12 @@ func trackEntities(p *manta.Parser) *entityStats {
 		LotusByHero:           map[string]map[string]int{},
 		MadstoneByHero:        map[string]int{},
 		MadstoneChargesByHero: map[string]int{},
+		MadstoneGainedByHero:  map[string]int{},
 	}
 
 	famTier := map[int32]string{} // famango entity index -> tier
-	madIdx := map[int32]int{}     // madstone bundle entity index -> charges seen
+	madIdx := map[int32]int{}     // madstone bundle entity index -> last charge count seen
+	madOwner := map[int32]string{} // bundle entity index -> hero currently holding it
 	credited := map[int32]bool{}  // credited exactly once, to the first inventory it enters
 
 	p.OnEntity(func(e *manta.Entity, op manta.EntityOp) error {
@@ -84,7 +90,7 @@ func trackEntities(p *manta.Parser) *entityStats {
 		}
 		if cn == madstoneClass {
 			idx := e.GetIndex()
-			ch := 1
+			ch := -1
 			if v := e.Get("m_iCurrentCharges"); v != nil {
 				switch n := v.(type) {
 				case int32:
@@ -93,9 +99,21 @@ func trackEntities(p *manta.Parser) *entityStats {
 					ch = int(n)
 				}
 			}
-			if ch > madIdx[idx] {
-				madIdx[idx] = ch
+			if ch < 0 {
+				return nil
 			}
+			prev, seen := madIdx[idx]
+			if seen && ch > prev {
+				// charges only ever rise by collection; a use lowers them.
+				if h := madOwner[idx]; h != "" {
+					st.MadstoneGainedByHero[h] += ch - prev
+				}
+			} else if !seen && ch > 0 {
+				if h := madOwner[idx]; h != "" {
+					st.MadstoneGainedByHero[h] += ch
+				}
+			}
+			madIdx[idx] = ch
 			return nil
 		}
 		if !strings.HasPrefix(cn, "CDOTA_Unit_Hero_") {
@@ -123,6 +141,7 @@ func trackEntities(p *manta.Parser) *entityStats {
 			// A Source 2 handle carries the entity index in its low 14 bits.
 			idx := int32(h & 0x3FFF)
 			if ch, isMad := madIdx[idx]; isMad {
+				madOwner[idx] = hero // keep current holder for charge attribution
 				if !credited[idx] {
 					credited[idx] = true
 					st.MadstoneByHero[hero]++
@@ -130,6 +149,7 @@ func trackEntities(p *manta.Parser) *entityStats {
 						ch = 1
 					}
 					st.MadstoneChargesByHero[hero] += ch
+					st.MadstoneGainedByHero[hero] += ch
 				}
 				continue
 			}

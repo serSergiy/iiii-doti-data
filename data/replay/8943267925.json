@@ -26,14 +26,50 @@
     "small": 4
    },
    "Shadow_Demon": {
-    "small": 4
+    "small": 3
    },
    "Techies": {
     "small": 4
    }
   },
-  "lotusEntitiesCredited": 34,
-  "lotusEntitiesSeen": 39
+  "lotusEntitiesCredited": 66,
+  "lotusEntitiesSeen": 39,
+  "madstoneBundlesByHero": {
+   "Alchemist": 8,
+   "BountyHunter": 4,
+   "Centaur": 5,
+   "DarkSeer": 2,
+   "Huskar": 4,
+   "LoneDruid": 1,
+   "Mirana": 4,
+   "Shadow_Demon": 3,
+   "Techies": 1,
+   "Viper": 1
+  },
+  "madstoneChargesByHero": {
+   "Alchemist": 8,
+   "BountyHunter": 4,
+   "Centaur": 5,
+   "DarkSeer": 2,
+   "Huskar": 4,
+   "LoneDruid": 1,
+   "Mirana": 4,
+   "Shadow_Demon": 3,
+   "Techies": 1,
+   "Viper": 1
+  },
+  "madstoneGainedByHero": {
+   "Alchemist": 8,
+   "BountyHunter": 4,
+   "Centaur": 5,
+   "DarkSeer": 2,
+   "Huskar": 4,
+   "LoneDruid": 1,
+   "Mirana": 4,
+   "Shadow_Demon": 3,
+   "Techies": 1,
+   "Viper": 1
+  }
  },
  "heroes": {
   "npc_dota_hero_alchemist": {
