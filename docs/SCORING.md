@@ -26,7 +26,8 @@ https://sersergiy.github.io/iiii-doti-data/data/meta.json    version, counts, co
   "leagueId": 19719,
   "generatedAt": "…",
   "columns": ["matchId","accountId",…],   // row field order
-  "unsourced": ["lotus","watcher","madstone"],  // ALWAYS null — see §7
+  "unsourced": [],                          // nothing is unconditionally null now
+  "replayDerived": ["lotus","watcher","madstone"], // null unless that match's replay is parsed
   "unvalidated": { "<col>": "why to distrust it" },
   "players": { "<accountId>": { "name": "…", "teamId": 0 } },
   "matches": { "<matchId>": {
@@ -223,7 +224,7 @@ These are correctness requirements, not styling.
 
 | stat | state |
 |---|---|
-| **watchers, lotuses, madstone** | `null` in the published data today. The values exist in the replays as the game's own counters (`m_iWatchersTaken`, `m_iLotusesTaken`, `m_nAcquiredMadstone`) and are validated — watchers reproduced banner-derived ground truth exactly. They ship once every replay is parsed. |
+| **watchers, lotuses, madstone** | **NOW SHIPPING**, from the game's own counters in the replay (`m_iWatchersTaken`, `m_iLotusesTaken`, `m_nAcquiredMadstone`). Validated: watchers reproduce banner-derived ground truth exactly (tOfu 5, Boxi 7), and `m_iLastHitCount` matches OpenDota on all 20 player-maps checked. Present only for matches whose replay is parsed — see `stats.json.replayDerived` and `meta.json.coverage`; currently ~0.48 of rows. `null` elsewhere, never 0. |
 | prefix/suffix stacking | see §5 |
 | Щасливчик digit | two readings emitted; pick one when a banner settles it |
 | Кат | uncomputable, mark unsupported |

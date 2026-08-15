@@ -17,7 +17,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import zlib from 'node:zlib';
 import { listLeagueMatches, getMatch } from './sources/opendota.mjs';
-import { deriveMatch, numberSeriesGames, COLUMNS, SCHEMA_VERSION, UNSOURCED, UNVALIDATED } from './derive.mjs';
+import { deriveMatch, numberSeriesGames, COLUMNS, SCHEMA_VERSION, UNSOURCED, UNVALIDATED, REPLAY_DERIVED } from './derive.mjs';
 import { trimMatch } from './lib/trim.mjs';
 import { writeIfChanged } from './lib/write-if-changed.mjs';
 
@@ -36,6 +36,16 @@ const FORCE = val('--force', null);
 
 /** Give up after this many failed attempts so a dead match stops burning quota. */
 const MAX_ATTEMPTS = 8;
+
+/** The game's own per-player counters from a parsed replay, keyed by accountId. */
+function replayStats(matchId) {
+  try {
+    const j = JSON.parse(fs.readFileSync(path.join(DATA, 'replay', `${matchId}.json`), 'utf8'));
+    const out = {};
+    for (const g of Object.values(j.gameStats ?? {})) if (g.accountId) out[g.accountId] = g;
+    return Object.keys(out).length ? out : null;
+  } catch { return null; }
+}
 
 const readJson = (p, d = null) => { try { return JSON.parse(fs.readFileSync(p, 'utf8')); } catch { return d; } };
 
@@ -64,7 +74,7 @@ function rederive(rosters) {
   let changed = 0;
   for (const f of files) {
     const raw = JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(RAW, f))).toString());
-    const { match, rows } = deriveMatch(raw, { rosters });
+    const { match, rows } = deriveMatch(raw, { rosters, gameStats: replayStats(raw.match_id) });
     const file = path.join(MATCHES, `${match.matchId}.json`);
     const prior = readJson(file) ?? {};
     const next = {
@@ -111,7 +121,7 @@ async function run(league, rosters) {
     process.stdout.write(`  [${i + 1}/${queue.length}] ${item.id} `);
     try {
       const raw = await getMatch(item.id);
-      const { match, rows, warnings } = deriveMatch(raw, { rosters });
+      const { match, rows, warnings } = deriveMatch(raw, { rosters, gameStats: replayStats(item.id) });
       allWarnings.push(...warnings);
 
       if (!DRY) {
@@ -209,6 +219,7 @@ function writeAggregate(league, warnings) {
     generatedAt: new Date().toISOString(),
     columns: COLUMNS,
     unsourced: UNSOURCED,
+    replayDerived: REPLAY_DERIVED,
     unvalidated: UNVALIDATED,
     players,
     matches: matchMap,

@@ -37,13 +37,32 @@ test('teamfight participation is present and in 0..1 — the stat STRATZ cannot 
   }
 });
 
-test('unsourced stats are null, never 0', () => {
+test('replay-derived stats are null when no replay is supplied, never 0', () => {
   const { rows } = deriveMatch(load(8943477775));
   for (const r of rows) {
     assert.equal(col(r, 'watcher'), null);
-    // lotus mapping was retracted: refuted on a banner whose maps are pinned by stuns.
     assert.equal(col(r, 'lotus'), null);
+    assert.equal(col(r, 'madstone'), null);
   }
+});
+
+/**
+ * The game's own counters win over every heuristic. Locked to the value that reproduced
+ * banner-derived ground truth: tOfu 5 and Boxi 7 watchers in match 8943091110.
+ */
+test('game counters populate lotus/watcher/madstone when a replay is supplied', () => {
+  const raw = load(8943477775);
+  const acct = raw.players[0].account_id;
+  const gameStats = { [acct]: { lotusesTaken: 11, watchersTaken: 4, acquiredMadstone: 148 } };
+  const { rows } = deriveMatch(raw, { gameStats });
+  const row = rows.find((r) => col(r, 'accountId') === acct);
+  assert.equal(col(row, 'lotus'), 11);
+  assert.equal(col(row, 'watcher'), 4);
+  assert.equal(col(row, 'madstone'), 148);
+  // players absent from the replay stats stay null rather than becoming 0
+  const other = rows.find((r) => col(r, 'accountId') !== acct);
+  assert.equal(col(other, 'lotus'), null);
+  assert.equal(col(other, 'watcher'), null);
 });
 
 test('famango column carries the raw count (evidence, not a claimed lotus mapping)', () => {

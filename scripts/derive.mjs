@@ -49,7 +49,15 @@ export const COLUMNS = [
 ];
 
 /** Stats we have no source for at all. Emitted as null, NEVER 0 — see note below. */
-export const UNSOURCED = ['lotus', 'watcher', 'madstone'];
+/**
+ * Nothing is unconditionally unsourced any more. lotus / watcher / madstone come from the
+ * game's OWN counters inside the replay (m_iLotusesTaken, m_iWatchersTaken,
+ * m_nAcquiredMadstone), so they are populated wherever a parsed replay exists and null
+ * where it does not. Consumers must check meta.json.coverage per column rather than
+ * assuming, which is what REPLAY_DERIVED is for.
+ */
+export const UNSOURCED = [];
+export const REPLAY_DERIVED = ['lotus', 'watcher', 'madstone'];
 
 /**
  * ЗІБРАНО ЛОТУСІВ = famango + great_famango + greater_famango, from item_uses.
@@ -95,6 +103,14 @@ const REMAKE_MAX_DURATION_S = 300;
 const itemUses = (p, k) => (p.item_uses && p.item_uses[k]) || 0;
 
 const num = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : 0);
+
+/** Read one of the game's own counters for a player, or null when no replay is parsed. */
+function gs(gameStats, player, key) {
+  if (!gameStats) return null;
+  const rec = gameStats[player.account_id];
+  if (!rec || rec[key] == null) return null;
+  return rec[key];
+}
 
 /**
  * Resolve a player's fantasy position 1-5.
@@ -147,7 +163,7 @@ export function matchStatus(raw) {
  * @returns {{ match: object, rows: Array[], warnings: string[] }}
  *   rows are arrays ordered by COLUMNS. Empty when the match is not 'ok'.
  */
-export function deriveMatch(raw, { rosters = {}, gameNo = null } = {}) {
+export function deriveMatch(raw, { rosters = {}, gameNo = null, gameStats = null } = {}) {
   const warnings = [];
   const status = matchStatus(raw);
 
@@ -217,13 +233,15 @@ export function deriveMatch(raw, { rosters = {}, gameNo = null } = {}) {
       num(p.courier_kills),
       torm.bySlot.get(p.player_slot) ?? 0,
       p.isRadiant ? torm.bySide.radiant : torm.bySide.dire,
-      null, // madstone: item_uses refuted on two independent banners, see FINDINGS
+      // The game's own counters, when a parsed replay is available for this match.
+      // These supersede every item_uses heuristic: m_iWatchersTaken reproduced
+      // banner-derived ground truth exactly (5 and 7), and m_iLastHitCount matched
+      // OpenDota on all 20 player-maps checked. null where no replay exists — never 0.
+      gs(gameStats, p, 'acquiredMadstone'),
       itemUses(p, 'madstone_bundle'),
       lotuses(p),
-      null, // lotus: mapping retracted, see above
-      // null, never 0. The spec's edge cases require "no data" to be distinguishable
-      // from "played and scored zero", and baking in 0 makes that unrecoverable.
-      null,
+      gs(gameStats, p, 'lotusesTaken'),
+      gs(gameStats, p, 'watchersTaken'),
     ]);
   }
 
