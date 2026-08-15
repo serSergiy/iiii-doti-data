@@ -263,6 +263,51 @@ exactly where a rate-vs-total confusion in the scoring engine would show up.
 
 ---
 
+## PREFIX HERO POOLS — SUPPLIED AND VALIDATED (2026-08-15)
+
+All eight pools are in `config/hero-pools.json`, resolved to hero ids at build time. This
+closes **spec open item 6**, which called for dumping them from the client VPK — no VPK
+extraction was needed.
+
+| Pool | Bonus | Heroes |
+|---|---|---|
+| Кармазиновий / crimson | +6% | 30 |
+| Лазурний / azure | +11% | 29 |
+| Смарагдовий / emerald | +6% | 23 |
+| Королівський / royal | +10% | 20 |
+| Золотий / golden | +8% | 25 |
+| Елементальний / elemental | +8% | 26 |
+| Потойбічний / otherworldly | +7% | 26 |
+| Героїчний / heroic | +9% | 30 |
+
+**The spec is wrong about the structure.** It says "127 heroes across five colours, no
+overlap". There are **eight** pools and they overlap heavily — 123 of 127 heroes appear in
+at least one, Batrider and Muerta appear in **four**, and seventeen heroes sit in three or
+more. A hero can satisfy several prefixes; only the one the banner carries applies.
+
+Two client names differ from OpenDota's spelling and are remapped at build time:
+`Ringmaster` → `Ring Master`, `Outworld Destroyer` → `Outworld Devourer`.
+
+### Closed-loop validation — the pools predict the prefix, blind
+
+Elleyer's title is **Crimson**. The formula had already deduced, from two emblems alone,
+that one support player took the +6% and the other did not. The pools decide it
+independently:
+
+```
+Clockwerk     (Boxi) -> in the crimson pool     -> +6%
+Winter Wyvern (tOfu) -> not in the crimson pool -> no bonus
+
+runes      5x1 + 12x1.06 = 17.72000 x 141  x 3.00 = 7495.56   client 7495.56
+teamfight  0.5385 + 0.7949x1.06     x 2124 x 1.30 = 3813.29   client 3813.29
+```
+
+Both to the cent, with nothing fitted: official coefficients, official pools, the displayed
+percentages, and real match data. **The engine is now reproducible end to end for any
+banner whose stats we have** — the only remaining gaps are the two stats with no source.
+
+---
+
 ## THE SCORING FORMULA — SOLVED (2026-08-14)
 
 Reported by the user and then verified exactly against a real banner. Valve also **fixed a
