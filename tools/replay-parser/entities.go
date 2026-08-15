@@ -44,6 +44,10 @@ type entityStats struct {
 	LotusByHero map[string]map[string]int `json:"lotusByHero"`
 	LotusTotal  int                       `json:"lotusEntitiesCredited"`
 	LotusSeen   int                       `json:"lotusEntitiesSeen"`
+	// Madstone bundles credited to the hero whose inventory they FIRST entered,
+	// plus the charges those bundles carried.
+	MadstoneByHero        map[string]int `json:"madstoneBundlesByHero"`
+	MadstoneChargesByHero map[string]int `json:"madstoneChargesByHero"`
 
 	finish func() `json:"-"`
 }
@@ -54,17 +58,44 @@ var famangoClass = map[string]string{
 	"CDOTA_Item_GreaterFamango": "greater",
 }
 
+// Madstone bundles. item_uses counts the USE, but the official stat is "за зібраний
+// лютит" — per madstone COLLECTED. A bundle can be handed to an ally, so the user is not
+// necessarily the collector. Crediting the FIRST inventory an entity enters gives the
+// collector, which is what the stat asks for.
+const madstoneClass = "CDOTA_Item_MadstoneBundle"
+
 // trackEntities wires the entity callbacks and returns the accumulating stats.
 func trackEntities(p *manta.Parser) *entityStats {
-	st := &entityStats{LotusByHero: map[string]map[string]int{}}
+	st := &entityStats{
+		LotusByHero:           map[string]map[string]int{},
+		MadstoneByHero:        map[string]int{},
+		MadstoneChargesByHero: map[string]int{},
+	}
 
 	famTier := map[int32]string{} // famango entity index -> tier
+	madIdx := map[int32]int{}     // madstone bundle entity index -> charges seen
 	credited := map[int32]bool{}  // credited exactly once, to the first inventory it enters
 
 	p.OnEntity(func(e *manta.Entity, op manta.EntityOp) error {
 		cn := e.GetClassName()
 		if t, ok := famangoClass[cn]; ok {
 			famTier[e.GetIndex()] = t
+			return nil
+		}
+		if cn == madstoneClass {
+			idx := e.GetIndex()
+			ch := 1
+			if v := e.Get("m_iCurrentCharges"); v != nil {
+				switch n := v.(type) {
+				case int32:
+					ch = int(n)
+				case uint32:
+					ch = int(n)
+				}
+			}
+			if ch > madIdx[idx] {
+				madIdx[idx] = ch
+			}
 			return nil
 		}
 		if !strings.HasPrefix(cn, "CDOTA_Unit_Hero_") {
@@ -91,6 +122,17 @@ func trackEntities(p *manta.Parser) *entityStats {
 			}
 			// A Source 2 handle carries the entity index in its low 14 bits.
 			idx := int32(h & 0x3FFF)
+			if ch, isMad := madIdx[idx]; isMad {
+				if !credited[idx] {
+					credited[idx] = true
+					st.MadstoneByHero[hero]++
+					if ch < 1 {
+						ch = 1
+					}
+					st.MadstoneChargesByHero[hero] += ch
+				}
+				continue
+			}
 			tier, isFam := famTier[idx]
 			if !isFam || credited[idx] {
 				continue
