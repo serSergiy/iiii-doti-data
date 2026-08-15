@@ -9,7 +9,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { deriveMatch, numberSeriesGames, COLUMNS, resolveRole, tormentorKills, matchStatus } from '../scripts/derive.mjs';
+import { deriveMatch, numberSeriesGames, COLUMNS, resolveRole, tormentorKills, matchStatus, MADSTONE_FACTOR, MADSTONE_FACTOR_BAND } from '../scripts/derive.mjs';
 
 const DIR = path.join(import.meta.dirname, 'fixtures');
 const load = (id) => JSON.parse(fs.readFileSync(path.join(DIR, `match-${id}.json`), 'utf8'));
@@ -42,7 +42,10 @@ test('replay-derived stats are null when no replay is supplied, never 0', () => 
   for (const r of rows) {
     assert.equal(col(r, 'watcher'), null);
     assert.equal(col(r, 'lotus'), null);
-    assert.equal(col(r, 'madstone'), null);
+    assert.equal(col(r, 'madstoneGame'), null);
+    // `madstone` is deliberately NOT in this set: it is an estimate off item_uses, so it
+    // needs no replay and must stay populated for every map.
+    assert.equal(typeof col(r, 'madstone'), 'number');
   }
 });
 
@@ -50,7 +53,7 @@ test('replay-derived stats are null when no replay is supplied, never 0', () => 
  * The game's own counters win over every heuristic. Locked to the value that reproduced
  * banner-derived ground truth: tOfu 5 and Boxi 7 watchers in match 8943091110.
  */
-test('game counters populate lotus/watcher/madstone when a replay is supplied', () => {
+test('game counters populate lotus/watcher when a replay is supplied', () => {
   const raw = load(8943477775);
   const acct = raw.players[0].account_id;
   const gameStats = { [acct]: { lotusesTaken: 11, watchersTaken: 4, acquiredMadstone: 148 } };
@@ -58,11 +61,33 @@ test('game counters populate lotus/watcher/madstone when a replay is supplied', 
   const row = rows.find((r) => col(r, 'accountId') === acct);
   assert.equal(col(row, 'lotus'), 11);
   assert.equal(col(row, 'watcher'), 4);
-  assert.equal(col(row, 'madstone'), 148);
+  // The raw counter is still carried — as evidence, under its own name.
+  assert.equal(col(row, 'madstoneGame'), 148);
   // players absent from the replay stats stay null rather than becoming 0
   const other = rows.find((r) => col(r, 'accountId') !== acct);
   assert.equal(col(other, 'lotus'), null);
   assert.equal(col(other, 'watcher'), null);
+});
+
+/**
+ * `madstone` is an ESTIMATE, and the point of pinning it here is that it must never be
+ * mistaken for a measurement again. m_nAcquiredMadstone reads the same value for all ten
+ * players on 43 of 63 maps, so it cannot be the per-player stat; this column is
+ * item_uses.madstone_bundle scaled by MADSTONE_FACTOR instead. If that factor is ever
+ * revised, this test is the reminder that every published number moves with it.
+ */
+test('madstone is the openly-estimated column, scaled off measured bundle uses', () => {
+  const raw = load(8943477775);
+  const { rows } = deriveMatch(raw);
+  for (const p of raw.players) {
+    const row = rows.find((r) => col(r, 'accountId') === p.account_id);
+    if (!row) continue;
+    const uses = (p.item_uses ?? {}).madstone_bundle ?? 0;
+    assert.equal(col(row, 'madstoneUses'), uses);
+    assert.equal(col(row, 'madstone'), +(uses * MADSTONE_FACTOR).toFixed(1));
+  }
+  assert.ok(MADSTONE_FACTOR > MADSTONE_FACTOR_BAND[0] && MADSTONE_FACTOR < MADSTONE_FACTOR_BAND[1],
+    'the shipped factor must sit inside the banner-derived band');
 });
 
 test('famango column carries the raw count (evidence, not a claimed lotus mapping)', () => {

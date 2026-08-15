@@ -41,8 +41,11 @@ export const COLUMNS = [
   'courier',
   'tormentorSelf',
   'tormentorTeam',
-  'madstone',
-  'madstoneUses',   // raw item_uses count — evidence, NOT the stat
+  'tormentorGame',  // m_iTormentorKills — the game's own counter, and THE tormentor stat.
+                    // Participation: every hero who damaged it, not the last hitter.
+  'madstone',       // ESTIMATE — madstoneUses x MADSTONE_FACTOR. Not a measurement.
+  'madstoneGame',   // raw m_nAcquiredMadstone — degenerate, evidence only. See UNVALIDATED.
+  'madstoneUses',   // raw item_uses count — the measured per-player quantity
   'famango',        // raw famango+great+greater count — evidence, NOT a claimed mapping
   'lotus',
   'watcher',
@@ -57,7 +60,30 @@ export const COLUMNS = [
  * assuming, which is what REPLAY_DERIVED is for.
  */
 export const UNSOURCED = [];
-export const REPLAY_DERIVED = ['lotus', 'watcher', 'madstone'];
+export const REPLAY_DERIVED = ['lotus', 'watcher', 'madstoneGame', 'tormentorGame'];
+
+/**
+ * ЗІБРАНИЙ ЛЮТИТ has no measured source, so this is an OPENLY ESTIMATED one.
+ *
+ * What is measured: `item_uses.madstone_bundle`, which agrees with the replay's own
+ * combat-log madstone events on 80/80 player-maps and behaves exactly as a collection stat
+ * should — pos 1 averages 23.6 bundles a map against pos 5's 2.6.
+ *
+ * What is NOT known: the conversion from bundles used to madstones collected. Two banners
+ * pin it at 1.63-1.75x and 2.20-2.31x, bands that do not overlap, so NO constant satisfies
+ * both. 1.97 is their midpoint, which is the choice that minimises the worst-case error —
+ * about +/-17%. It is a considered guess, not a finding, and `madstone` is flagged in
+ * UNVALIDATED so the UI must badge it.
+ *
+ * Deliberately NOT scaled by match duration on top of this. `madstoneUses` already carries
+ * duration — the ten-player sum correlates with it at r=0.85, rising ~2.2 bundles a minute —
+ * so a second duration term would count the same effect twice.
+ *
+ * Being a scalar multiple, this cannot change any ranking between players; it only sets the
+ * absolute scale, which is all the fantasy points need it for.
+ */
+export const MADSTONE_FACTOR = 1.97;
+export const MADSTONE_FACTOR_BAND = [1.63, 2.31];
 
 /**
  * ЗІБРАНО ЛОТУСІВ = famango + great_famango + greater_famango, from item_uses.
@@ -90,10 +116,12 @@ const lotuses = (p) => LOTUS_ITEMS.reduce((a, k) => a + itemUses(p, k), 0);
  */
 export const UNVALIDATED = {
   famango: 'raw item_uses famango+great+greater. NOT confirmed to be the lotus stat — refuted on a pinned-map banner. See docs/FINDINGS.md',
-  madstoneUses: 'raw item_uses.madstone_bundle. NOT the ЗІБРАНИЙ ЛЮТИТ stat — two banners need 1.63-1.75x and 2.20-2.31x of it, bands that do not overlap, so no multiplier or bundle size reconciles them.',
+  madstone: `ESTIMATE, NOT A MEASUREMENT — madstoneUses x ${MADSTONE_FACTOR}. The multiplier is the midpoint of two banner-derived bands (1.63-1.75x and 2.20-2.31x) that do not overlap, so no constant satisfies both and this one is wrong by up to ~17% on any given map. Badge it. Being a scalar multiple of madstoneUses it preserves player ordering exactly, so it is safe to rank on and unsafe to quote as a count.`,
+  madstoneGame: 'the game\'s own m_nAcquiredMadstone. DEGENERATE — not a per-player stat at all: all ten players carry an identical value on 43 of 63 maps, it equals item_uses.madstone_bundle on 1 of 280 rows, and players who used zero bundles still read 17-19. It tracks match duration in steps (16, 26, 36, 46 ...) rather than anything a player did. Emitted as evidence only; never score it.',
+  madstoneUses: 'raw item_uses.madstone_bundle. A real measured per-player quantity (80/80 agreement with the replay combat log), but in bundles, NOT in the madstones the fantasy stat counts. Use `madstone` for scoring.',
   smokes: 'item_uses.smoke_of_deceit. The OFFICIAL glossary says simply "за використаний Дим омани" with no kill requirement, which argues against the prior-art theory that only smokes used in a kill count.',
-  tormentorSelf: 'credits the last hitter — which the OFFICIAL glossary now supports ("за вбивство мучителя", per KILL, not per participation). tormentorTeam is kept only as a fallback reading.',
-
+  tormentorSelf: 'REFUTED as the fantasy stat. OpenDota objectives-log last-hitter reading. The "meow" banner (mid Nisha, УБИТО МУЧИТЕЛІВ 250% -> 4395, coef 879) pins the counted maps at 8943091110+8943148045 via towerKills/smokesUsed agreement and implies exactly 2.0000 raw units — but tormentorSelf sums to 1 on those two maps. The glossary wording ("за вбивство мучителя") was read as last-hit-only; that reading is now contradicted by data. Kept only as a fallback shape.',
+  tormentorGame: 'the game\'s own m_iTormentorKills counter — PARTICIPATION, not the last hit: it credits every hero who damaged the tormentor, measured at 155 credits over 54 tormentor deaths (mean 2.87, max 4 heroes on one death) across the 29 parsed replays. On the "meow" banner + counted maps above it sums to exactly 2, matching the implied 2.0000 units where tormentorSelf (1) does not. This is the SHIPPED tormentor source. Still listed here because a single banner pins it: the definition is right, the exact credit threshold (any damage? a minimum share?) is not independently confirmed.',
 };
 
 /** A remake is a map that never really happened. Heuristic — flagged, not trusted. */
@@ -237,6 +265,9 @@ export function deriveMatch(raw, { rosters = {}, gameNo = null, gameStats = null
       // These supersede every item_uses heuristic: m_iWatchersTaken reproduced
       // banner-derived ground truth exactly (5 and 7), and m_iLastHitCount matched
       // OpenDota on all 20 player-maps checked. null where no replay exists — never 0.
+      gs(gameStats, p, 'tormentorKills'),
+      // ESTIMATE. One decimal so it never reads as an exact count — see MADSTONE_FACTOR.
+      +(itemUses(p, 'madstone_bundle') * MADSTONE_FACTOR).toFixed(1),
       gs(gameStats, p, 'acquiredMadstone'),
       itemUses(p, 'madstone_bundle'),
       lotuses(p),

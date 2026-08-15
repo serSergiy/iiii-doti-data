@@ -24,10 +24,19 @@ const C = Object.fromEntries(stats.columns.map((c, i) => [c, i]));
 // Which dataset column feeds each official stat id. null = we have no source.
 const STAT_SOURCE = {
   kills: 'kills', deaths: 'deaths', creepScore: 'derived', gpmX2: 'gpm',
+  // madstone is an ESTIMATE (madstoneUses x 1.97), not a measured count — the UI must
+  // badge it from stats.json.unvalidated. The game's own m_nAcquiredMadstone is NOT usable:
+  // all ten players share one value on 43 of 63 maps.
   madstone: 'madstone', towerKills: 'towers', obsPlaced: 'obs',
-  campsStacked: 'camps', runePickups: 'runes', watchers: null,
-  lotuses: null, smokesUsed: 'smokes', roshanKills: 'roshan',
-  teamfight: 'teamfight', stuns: 'stuns', tormentor: 'tormentorSelf',
+  // watchers and lotuses come from the game's own m_iWatchersTaken / m_iLotusesTaken. Both
+  // are genuinely per-player — neither is ever degenerate across a match — so unlike
+  // madstone they are shipped as measured values.
+  campsStacked: 'camps', runePickups: 'runes', watchers: 'watcher',
+  lotuses: 'lotus', smokesUsed: 'smokes', roshanKills: 'roshan',
+  // tormentor is PARTICIPATION, not the last hit — the game's own m_iTormentorKills
+  // credits every hero who damaged it. Replay-only, so null on unparsed maps: falling
+  // back to tormentorSelf would silently mix two semantics that differ by ~2.9x.
+  teamfight: 'teamfight', stuns: 'stuns', tormentor: 'tormentorGame',
   courierKills: 'courier', firstBlood: 'firstBlood',
 };
 
@@ -41,9 +50,9 @@ for (const r of stats.rows) {
     creepScore: r[C.lastHits] + r[C.denies],       // official: last hit OR deny
     gpmX2: r[C.gpm], madstone: r[C.madstone], towerKills: r[C.towers],
     obsPlaced: r[C.obs], campsStacked: r[C.camps], runePickups: r[C.runes],
-    watchers: null, lotuses: null, smokesUsed: r[C.smokes],
+    watchers: r[C.watcher], lotuses: r[C.lotus], smokesUsed: r[C.smokes],
     roshanKills: r[C.roshan], teamfight: r[C.teamfight], stuns: r[C.stuns],
-    tormentor: r[C.tormentorSelf], courierKills: r[C.courier],
+    tormentor: r[C.tormentorGame], courierKills: r[C.courier],
     firstBlood: r[C.firstBlood],
     pos: r[C.pos], heroId: r[C.heroId],
   };
