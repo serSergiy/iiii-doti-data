@@ -1,17 +1,17 @@
 {
   "v": 1,
-  "generatedAt": "2026-08-15T04:54:27.710Z",
+  "generatedAt": "2026-08-15T05:16:19.867Z",
   "leagueId": 19719,
   "leagueName": "The International 2026",
   "counts": {
-    "ok": 65,
+    "ok": 68,
     "pending": 0,
     "failed": 0,
     "remade": 0,
-    "unparsed": 2
+    "unparsed": 0
   },
-  "matchCount": 67,
-  "rowCount": 650,
+  "matchCount": 68,
+  "rowCount": 680,
   "seriesCount": 28,
   "playerCount": 80,
   "coverage": {
@@ -33,15 +33,12 @@
     "courier": 1,
     "tormentorSelf": 1,
     "tormentorTeam": 1,
-    "madstone": 0.431,
+    "madstone": 0.412,
     "madstoneUses": 1,
     "famango": 1,
-    "lotus": 0.431,
-    "watcher": 0.431
+    "lotus": 0.412,
+    "watcher": 0.412
   },
-  "warningSample": [
-    "match 8946231092: status=unparsed, no rows emitted",
-    "match 8946228708: status=unparsed, no rows emitted"
-  ],
-  "warningCount": 2
+  "warningSample": [],
+  "warningCount": 0
 }
