@@ -1064,6 +1064,53 @@ Two further consequences fell out of the same capture:
 Pinned by `test/banner.test.mjs`, which reproduces the banner to the cent and asserts the
 multiplicative reading fails.
 
+### MADSTONE MEASURED, LOTUS CONFIRMED, AND THE DIVIDE SETTLED (2026-08-15)
+
+Two cards carrying a ЗІБРАНИЙ ЛЮТИТ emblem — the thing every earlier madstone attempt
+lacked. Core = Noticed + Satanic (series 1130027), mid = Malr1ne (series 1130024). Both
+counted pairs are pinned by КОМАНДНІ БОЇ agreeing to six decimals, so nothing here is fitted:
+
+| card | teamfight needed | teamfight from our data |
+|---|---|---|
+| core g1+g3 | 2.603378 | 2.603378 |
+| mid g1(×1.11)+g3 | 1.131771 | 1.131770 |
+
+**The divide is settled, by an impossibility.** Core КОМАНДНІ БОЇ implies 2.603378 units if
+the displayed emblem is undivided, or 5.206756 if it is already divided by the role's two
+players. teamfight is a 0..1 fraction per player per map, so two players over two maps cap
+it at **4.0**. The divided reading cannot happen. Очки confirms it: 29931.93 ÷ 2 = 14965.97.
+
+This **reverses** the conclusion drawn from `banner-observation-sersergiy-2`, whose
+transcribed emblems sum to its Очки as though already divided. That capture's three emblem
+numbers need re-reading. The additive-stacking result taken from it is untouched — it is a
+ratio between two maps, and so scale-invariant.
+
+**Lotus is confirmed for the first time.** The mid emblem implies exactly **4.000000** raw
+lotuses; Malr1ne's `m_iLotusesTaken` over the counted pair is 0 + 4. After a retracted
+`item_uses` mapping and a ruled-out `ability_capture` reading, the game's own counter is the
+stat.
+
+**Madstone, measured at last:**
+
+| card | units implied | bundle uses | conversion |
+|---|---|---|---|
+| core | 202.0000 (exact integer) | 67 | **3.0149** |
+| mid | 70.5201 | 22.1 (prefix-weighted) | **3.1910** |
+
+Pooled **3.0586**. The mid decomposes uniquely over the integers — `1.11a + b = 70.5201` has
+the single non-negative solution a=32, b=35 against 10 and 11 bundle uses, i.e. **3n+2 on
+both maps**. So a bundle is **3 madstones** and the rest is uncollected leftover, which the
+core corroborates at 3×67+1 = 202. The remainder is not constant (core needs +1 across four
+player-maps where mid needs +2 on each of two), which is exactly why a scalar cannot be
+exact and why `madstone` stays flagged.
+
+`MADSTONE_FACTOR` moves 1.97 → **3.06**. The old value came from two banner bands that
+cannot be re-derived from anything committed, and understated madstone by ~36%.
+
+One loose end: `gpmX2` sums to 3178 against 3180.4875 needed. OpenDota reports
+`gold_per_min` as an integer and four player-maps of truncation covers the 2.49 gap, but it
+is unconfirmed.
+
 ---
 
 ## Net effect on the plan

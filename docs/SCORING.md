@@ -56,9 +56,8 @@ emblemPoints = SUM over the 2 counted maps of
                    stat × ( 1 + prefixBonus(player, map) + suffixBonus(map) )
                × coefficient
                × emblemPercent
-               ÷ number of players in the role
 
-roleScore    = SUM of the role's 3 emblemPoints
+roleScore    = SUM of the role's 3 emblemPoints  ÷  number of players in the role
 bannerScore  = SUM of the 3 roleScores
 ```
 
@@ -68,15 +67,16 @@ Things that are easy to get wrong, all of them confirmed:
   contribution, because it depends on the hero *that player* picked in *that game*.
 - **The suffix is per map.** It applies to every player's contribution on that map.
 - **The two bonuses ADD, they do not compose.** `1 + p + s`, never `(1+p)(1+s)` — see §5.
-- **The ÷ player count is inside the emblem.** Core and support are 2, mid is 1. The emblem
-  number the client displays is **already divided**, and the role total the client shows is
-  the plain sum of its three displayed emblems.
+- **The ÷ player count produces the role score.** Core and support are 2, mid is 1. The
+  emblem number the client displays is the **undivided** sum, and Очки is those three
+  emblems added up and then divided.
 
-> ⚠️ That last point contradicts the Elleyer worked example below, which read the displayed
-> emblem as *undivided*. The two cannot both be right. `banner-observation-sersergiy-2` pins
-> the divided reading with three independent emblems agreeing to the cent, and
-> `test/banner.test.mjs` holds it; the Elleyer figures below are left as recorded but should
-> be re-derived before being trusted. Treat the divided reading as current.
+  Settled by an impossibility rather than a fit. On the core card of
+  `banner-observation-madstone-pair`, КОМАНДНІ БОЇ implies **2.603378** raw units undivided,
+  or **5.206756** if the displayed emblem were already divided by the role's two players.
+  teamfight is a 0..1 fraction per player per map, so two players over two maps cap it at
+  **4.0** — the divided reading is arithmetically impossible. Очки then checks out exactly:
+  29931.93 ÷ 2 = 14965.97.
 
 ### Worked example — verified to the cent
 
@@ -253,7 +253,8 @@ These are correctness requirements, not styling.
 | stat | state |
 |---|---|
 | **watchers, lotuses** | **SHIPPING**, from the game's own `m_iWatchersTaken` / `m_iLotusesTaken`. Genuinely per-player — neither is ever identical across a match's ten players. Watchers reproduce banner-derived ground truth exactly (tOfu 5, Boxi 7), and the nine counters cross-checkable against OpenDota agree 290/290. Present only where a replay is parsed — see `stats.json.replayDerived` and `meta.json.coverage`. `null` elsewhere, never 0. |
-| **madstone** | **AN ESTIMATE — badge it.** `madstoneUses × 1.97`, where `madstoneUses` is measured (`item_uses.madstone_bundle`, 80/80 against the replay) but counts *bundles*, not the madstones the stat scores. The multiplier is the midpoint of two banner-derived bands (1.63–1.75× and 2.20–2.31×) that **do not overlap**, so no constant fits both and this is wrong by up to ~17% on any map. It is a scalar multiple, so it ranks players correctly and must not be quoted as a count. **Do not use `madstoneGame`** (the game's own `m_nAcquiredMadstone`): all ten players share one value on 43 of 63 maps — it tracks duration in steps, not the player. |
+| **madstone** | **AN ESTIMATE — badge it.** `madstoneUses × 3.06`. `madstoneUses` is measured (`item_uses.madstone_bundle`) but counts *bundles*, not the madstones the stat scores. Two client scores now measure the conversion at **3.0149** and **3.1910** (pooled 3.0586); the real relationship looks like *3 madstones per bundle plus a small per-player remainder* that is not constant, so a scalar is off by a few percent either way. It is a scalar multiple, so it ranks players correctly and must not be quoted as a count. **Do not use `madstoneGame`** (`m_nAcquiredMadstone`): all ten players share one value on 43 of 63 maps — it tracks duration in steps, not the player. |
+| **lotuses** | **CONFIRMED** against a client score. The mid card of `banner-observation-madstone-pair` implies exactly **4.000000** raw lotuses, and `m_iLotusesTaken` over the counted pair is 0 + 4. The game's own counter is the stat. |
 | **tormentor** | **Score `tormentorGame`, not `tormentorSelf`.** УБИТО МУЧИТЕЛІВ is **participation** — the game's own `m_iTormentorKills` credits every hero who damaged the tormentor (mean 2.87 credits per tormentor death), not just the last hitter. Proved on the `meow` banner, whose counted maps are pinned by towers and smokes: implied 2.0000 units, `tormentorGame` = 2, `tormentorSelf` = 1. Replay-derived, so `null` on unparsed maps — do **not** fall back to `tormentorSelf`, the two differ by ~3×. `tormentorSelf`/`tormentorTeam` remain in the schema as evidence only. |
 | prefix/suffix stacking | see §5 |
 | Щасливчик digit | two readings emitted; pick one when a banner settles it |

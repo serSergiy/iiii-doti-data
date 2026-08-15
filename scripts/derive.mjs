@@ -69,11 +69,22 @@ export const REPLAY_DERIVED = ['lotus', 'watcher', 'madstoneGame', 'tormentorGam
  * combat-log madstone events on 80/80 player-maps and behaves exactly as a collection stat
  * should — pos 1 averages 23.6 bundles a map against pos 5's 2.6.
  *
- * What is NOT known: the conversion from bundles used to madstones collected. Two banners
- * pin it at 1.63-1.75x and 2.20-2.31x, bands that do not overlap, so NO constant satisfies
- * both. 1.97 is their midpoint, which is the choice that minimises the worst-case error —
- * about +/-17%. It is a considered guess, not a finding, and `madstone` is flagged in
- * UNVALIDATED so the UI must badge it.
+ * What is NOT known exactly: the conversion from bundles used to madstones collected. Two
+ * banners carrying a ЗІБРАНИЙ ЛЮТИТ emblem now measure it directly, and both counted-map
+ * pairs are pinned independently by teamfight agreeing to six decimals:
+ *
+ *   core (Noticed + Satanic, 1130027 g1+g3)  202.0000 units / 67 bundles   = 3.0149
+ *   mid  (Malr1ne, 1130024 g1x1.11 + g3)      70.5201 units / 22.1 bundles = 3.1910
+ *
+ * Pooled: 3.0586, band [3.015, 3.191]. The underlying relationship looks like
+ * `3 x bundles + a small per-player remainder` — a bundle is 3 madstones, and the mid
+ * decomposes uniquely to 32 and 35 madstones off 10 and 11 bundles, i.e. 3n+2 both maps.
+ * The remainder is not constant (the core needs +1 across four player-maps where the mid
+ * needs +2 on each of two), which is exactly why a scalar cannot be exact.
+ *
+ * 3.06 is therefore a fitted estimate, not a measurement, and `madstone` stays flagged in
+ * UNVALIDATED so the UI must badge it. It supersedes an earlier 1.97, which came from two
+ * banner bands nobody can re-derive and understated madstone by ~36%.
  *
  * Deliberately NOT scaled by match duration on top of this. `madstoneUses` already carries
  * duration — the ten-player sum correlates with it at r=0.85, rising ~2.2 bundles a minute —
@@ -82,8 +93,8 @@ export const REPLAY_DERIVED = ['lotus', 'watcher', 'madstoneGame', 'tormentorGam
  * Being a scalar multiple, this cannot change any ranking between players; it only sets the
  * absolute scale, which is all the fantasy points need it for.
  */
-export const MADSTONE_FACTOR = 1.97;
-export const MADSTONE_FACTOR_BAND = [1.63, 2.31];
+export const MADSTONE_FACTOR = 3.06;
+export const MADSTONE_FACTOR_BAND = [3.01, 3.19];
 
 /**
  * ЗІБРАНО ЛОТУСІВ = famango + great_famango + greater_famango, from item_uses.
@@ -116,7 +127,7 @@ const lotuses = (p) => LOTUS_ITEMS.reduce((a, k) => a + itemUses(p, k), 0);
  */
 export const UNVALIDATED = {
   famango: 'raw item_uses famango+great+greater. NOT confirmed to be the lotus stat — refuted on a pinned-map banner. See docs/FINDINGS.md',
-  madstone: `ESTIMATE, NOT A MEASUREMENT — madstoneUses x ${MADSTONE_FACTOR}. The multiplier is the midpoint of two banner-derived bands (1.63-1.75x and 2.20-2.31x) that do not overlap, so no constant satisfies both and this one is wrong by up to ~17% on any given map. Badge it. Being a scalar multiple of madstoneUses it preserves player ordering exactly, so it is safe to rank on and unsafe to quote as a count.`,
+  madstone: `ESTIMATE, NOT A MEASUREMENT — madstoneUses x ${MADSTONE_FACTOR}, fitted to two banners carrying a ЗІБРАНИЙ ЛЮТИТ emblem (3.0149 and 3.1910, pooled 3.0586). The true relationship is about 3 madstones per bundle plus a small per-player remainder that is not constant, so a scalar is wrong by a few percent either way. Badge it. Being a scalar multiple of madstoneUses it preserves player ordering exactly, so it is safe to rank on and unsafe to quote as a count.`,
   madstoneGame: 'the game\'s own m_nAcquiredMadstone. DEGENERATE — not a per-player stat at all: all ten players carry an identical value on 43 of 63 maps, it equals item_uses.madstone_bundle on 1 of 280 rows, and players who used zero bundles still read 17-19. It tracks match duration in steps (16, 26, 36, 46 ...) rather than anything a player did. Emitted as evidence only; never score it.',
   madstoneUses: 'raw item_uses.madstone_bundle. A real measured per-player quantity (80/80 agreement with the replay combat log), but in bundles, NOT in the madstones the fantasy stat counts. Use `madstone` for scoring.',
   smokes: 'item_uses.smoke_of_deceit. The OFFICIAL glossary says simply "за використаний Дим омани" with no kill requirement, which argues against the prior-art theory that only smokes used in a kill count.',
