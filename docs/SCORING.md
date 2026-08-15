@@ -67,16 +67,26 @@ Things that are easy to get wrong, all of them confirmed:
   contribution, because it depends on the hero *that player* picked in *that game*.
 - **The suffix is per map.** It applies to every player's contribution on that map.
 - **The two bonuses ADD, they do not compose.** `1 + p + s`, never `(1+p)(1+s)` — see §5.
-- **The ÷ player count produces the role score.** Core and support are 2, mid is 1. The
-  emblem number the client displays is the **undivided** sum, and Очки is those three
-  emblems added up and then divided.
+- **The ÷ player count produces the role score.** Core and support are 2, mid is 1.
+  `roleScore = Σ emblemPoints ÷ n`, and Очки is that number.
 
-  Settled by an impossibility rather than a fit. On the core card of
-  `banner-observation-madstone-pair`, КОМАНДНІ БОЇ implies **2.603378** raw units undivided,
-  or **5.206756** if the displayed emblem were already divided by the role's two players.
-  teamfight is a 0..1 fraction per player per map, so two players over two maps cap it at
-  **4.0** — the divided reading is arithmetically impossible. Очки then checks out exactly:
-  29931.93 ÷ 2 = 14965.97.
+  > ⚠️ **Do not infer this from the emblem tile.** The number printed on a tile is *not*
+  > consistently divided or undivided across the client's screens, and reading the formula
+  > off a tile is how this got mis-derived twice.
+  >
+  > | capture | Σ tiles | Очки | tiles are |
+  > |---|---|---|---|
+  > | support card, own banner | 17560.21 | 17560.21 | **divided** |
+  > | core card, friends / top-100 panel | 29931.93 | 14965.97 | **undivided** |
+  >
+  > Both are 2-player roles captured the same day, and both satisfy
+  > `Очки = Σ undivided ÷ 2` exactly. The scoring is identical; only the label differs.
+  > Each reading is independently forced: the support card cannot be undivided (it needs
+  > 25.07 ward units where the smallest pair available is 29, and multipliers only add),
+  > and the core card cannot be divided (it would need 5.207 teamfight of a possible 4.0,
+  > teamfight being a 0..1 fraction per player per map).
+  >
+  > **Score against Очки, never against a tile.**
 
 ### Worked example — verified to the cent
 

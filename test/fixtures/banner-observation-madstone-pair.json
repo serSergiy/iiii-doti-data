@@ -6,38 +6,96 @@
  "format": "group",
  "roles": {
   "core": {
-   "label": "ОСНОВА", "players": ["Noticed", "Satanic"],
-   "emblems": [
-    { "slot": 1, "color": "red",   "stat": "madstone",  "statUk": "ЗІБРАНИЙ ЛЮТИТ", "percent": 150, "score": 3939.00 },
-    { "slot": 2, "color": "green", "stat": "teamfight", "statUk": "КОМАНДНІ БОЇ",   "percent": 240, "score": 13270.98 },
-    { "slot": 3, "color": "red",   "stat": "gpmX2",     "statUk": "33Х",            "percent": 200, "score": 12721.95 }
+   "label": "ОСНОВА",
+   "players": [
+    "Noticed",
+    "Satanic"
    ],
-   "emblemSum": 29931.93, "observedTotal": 14965.97,
+   "emblems": [
+    {
+     "slot": 1,
+     "color": "red",
+     "stat": "madstone",
+     "statUk": "ЗІБРАНИЙ ЛЮТИТ",
+     "percent": 150,
+     "score": 3939
+    },
+    {
+     "slot": 2,
+     "color": "green",
+     "stat": "teamfight",
+     "statUk": "КОМАНДНІ БОЇ",
+     "percent": 240,
+     "score": 13270.98
+    },
+    {
+     "slot": 3,
+     "color": "red",
+     "stat": "gpmX2",
+     "statUk": "33Х",
+     "percent": 200,
+     "score": 12721.95
+    }
+   ],
+   "emblemSum": 29931.93,
+   "observedTotal": 14965.97,
    "countedSeries": 1130027,
-   "countedMaps": [8943010675, 8943098449],
-   "mapMultiplier": 1.0
+   "countedMaps": [
+    8943010675,
+    8943098449
+   ],
+   "mapMultiplier": 1,
+   "tilesDivided": false
   },
   "mid": {
-   "label": "ЦЕНТР", "players": ["Malr1ne"],
-   "emblems": [
-    { "slot": 1, "color": "red",   "stat": "madstone",  "statUk": "ЗІБРАНИЙ ЛЮТИТ", "percent": 230, "score": 2108.55 },
-    { "slot": 2, "color": "blue",  "stat": "lotuses",   "statUk": "ЗІБРАНО ЛОТУСІВ", "percent": 220, "score": 1548.80 },
-    { "slot": 3, "color": "green", "stat": "teamfight", "statUk": "КОМАНДНІ БОЇ",   "percent": 110, "score": 2644.27 }
+   "label": "ЦЕНТР",
+   "players": [
+    "Malr1ne"
    ],
-   "emblemSum": 6301.62, "observedTotal": 6301.62,
+   "emblems": [
+    {
+     "slot": 1,
+     "color": "red",
+     "stat": "madstone",
+     "statUk": "ЗІБРАНИЙ ЛЮТИТ",
+     "percent": 230,
+     "score": 2108.55
+    },
+    {
+     "slot": 2,
+     "color": "blue",
+     "stat": "lotuses",
+     "statUk": "ЗІБРАНО ЛОТУСІВ",
+     "percent": 220,
+     "score": 1548.8
+    },
+    {
+     "slot": 3,
+     "color": "green",
+     "stat": "teamfight",
+     "statUk": "КОМАНДНІ БОЇ",
+     "percent": 110,
+     "score": 2644.27
+    }
+   ],
+   "emblemSum": 6301.62,
+   "observedTotal": 6301.62,
    "countedSeries": 1130024,
-   "countedMaps": [8942993144, 8943072784],
+   "countedMaps": [
+    8942993144,
+    8943072784
+   ],
    "prefix": "azure",
    "notes": "prefix +11% applies to game 1 only (hero 59); no suffix fires on either map"
   }
  },
  "notes": [
-  "DECIDES THE DIVIDE. Core teamfight implies 2.603378 raw units undivided, or 5.206756 if the displayed emblem were divided by the 2 players. teamfight is a 0..1 fraction per player per map, so 2 players x 2 maps caps it at 4.0 — the divided reading is arithmetically IMPOSSIBLE. Displayed emblems are UNDIVIDED and Очки is their sum ÷ player count (29931.93 ÷ 2 = 14965.97, exact).",
-  "This CONTRADICTS banner-observation-sersergiy-2, whose transcribed emblems sum to its Очки as if already divided. That capture's three emblem numbers should be re-read; the additive-stacking conclusion drawn from it is unaffected, being a ratio between two maps and so scale-invariant.",
+  "DECIDES THE ROLE FORMULA. On THIS capture core teamfight implies 2.603378 raw units if its tiles are undivided, or 5.206756 if they were already divided by the 2 players. teamfight is a 0..1 fraction per player per map, so 2 players x 2 maps caps it at 4.0 — the divided reading is arithmetically IMPOSSIBLE here, so these tiles are undivided. Очки is then exact: 29931.93 ÷ 2 = 14965.97. The formula roleScore = sum(undivided emblems) / n holds on every capture we have; what varies between screens is only whether the tile prints the divided or undivided number.",
   "Both counted-map pairs are pinned independently by КОМАНДНІ БОЇ agreeing to six decimals: core g1+g3 gives 2.603378 against 2.603378 needed, mid g1+g3 gives 1.131770 against 1.131771. Neither is fitted.",
   "FIRST CONFIRMATION OF THE LOTUS MAPPING. The mid emblem implies exactly 4.000000 raw lotuses, and Malr1ne's m_iLotusesTaken over the counted pair is 0 + 4. The game's own counter is the lotus stat.",
   "MADSTONE, measured at last. Core implies exactly 202 units off 67 bundle uses (multiplier 1.0 on both maps); mid implies 70.5201 off 22.1 prefix-weighted bundle uses. K = 3.0149 and 3.1910, pooled 3.0586.",
   "The mid decomposes uniquely over the integers: 1.11a + b = 70.5201 has the single non-negative solution a=32, b=35, against 10 and 11 bundle uses — i.e. 3n+2 on both maps. A bundle is 3 madstones and the remainder is uncollected leftover, which the core corroborates at 3x67+1 = 202.",
-  "gpmX2 sums to 3178 against 3180.4875 needed. OpenDota reports gold_per_min as an integer, and four player-maps of truncation covers the 2.49 gap."
+  "gpmX2 sums to 3178 against 3180.4875 needed. OpenDota reports gold_per_min as an integer, and four player-maps of truncation covers the 2.49 gap.",
+  "Tiles here are UNDIVIDED, whereas banner-observation-sersergiy-2 prints them DIVIDED on the own-banner screen. Both satisfy roleScore = sum(undivided) / n exactly, so the difference is a display choice per screen -- note the friends / top-100 panel visible in this capture. Never infer the formula from a tile."
  ]
 }

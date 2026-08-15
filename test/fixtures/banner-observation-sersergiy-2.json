@@ -49,7 +49,9 @@
    "countedMaps": [
     8946161660,
     8946285985
-   ]
+   ],
+   "tilesDivided": true,
+   "undividedEmblemSum": 35120.42
   }
  },
  "notes": [
@@ -59,6 +61,6 @@
   "Game 1 (8946161660) carries multiplier exactly 1.0: neither support was on a pool hero and it is not the decider. That pins the pair as well as the stacking.",
   "Counted maps are games 1 and 3 of the GamerLegion series, NOT the TEAM VISION series. Under both the real emblem set and the smokes variant, GamerLegion is the higher-scoring series in our data, so any engine selecting TEAM VISION here has a selection bug.",
   "Independent corroboration: the same additive model scores the TEAM VISION pair at exactly 15384.11, which is the support observedTotal recorded in banner-observation-sersergiy.json from an earlier day.",
-  "SUPERSEDED ON THE DIVIDE: banner-observation-madstone-pair proves displayed emblems are UNDIVIDED (its core teamfight would need 5.21 of a possible 4.0 otherwise). The three emblem numbers transcribed here sum exactly to Очки, which the undivided reading cannot produce, so they should be re-read from the original capture. The additive-stacking conclusion is unaffected: it is a ratio between the two counted maps and does not depend on the absolute scale."
+  "TILE SCALE RESOLVED, user-confirmed: the transcribed emblem values are correct as read, and on this screen the client prints the tile ALREADY DIVIDED by the role player count. Ochky (17560.21) is the plain sum of the tiles and equals the undivided emblem sum (35120.42) over 2. banner-observation-madstone-pair prints its tiles UNDIVIDED on a different screen while satisfying the same roleScore formula, so the tile label is a display choice and carries no scoring meaning."
  ]
 }
