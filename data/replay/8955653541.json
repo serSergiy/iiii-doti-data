@@ -1,0 +1,331 @@
+{
+ "matchId": "8955653541",
+ "parserVersion": 3,
+ "entities": {
+  "lotusByHero": {
+   "BountyHunter": {
+    "great": 2,
+    "greater": 2,
+    "small": 1
+   },
+   "EmberSpirit": {
+    "great": 1,
+    "small": 1
+   },
+   "Hoodwink": {
+    "small": 1
+   },
+   "Tidehunter": {
+    "small": 2
+   },
+   "Wisp": {
+    "small": 6
+   }
+  },
+  "lotusEntitiesCredited": 41,
+  "lotusEntitiesSeen": 16,
+  "madstoneBundlesByHero": {
+   "BountyHunter": 1,
+   "EmberSpirit": 1,
+   "Hoodwink": 2,
+   "Rattletrap": 4,
+   "Slark": 2,
+   "Tidehunter": 5,
+   "Windrunner": 1,
+   "Winter_Wyvern": 2,
+   "Wisp": 7
+  },
+  "madstoneChargesByHero": {
+   "BountyHunter": 1,
+   "EmberSpirit": 1,
+   "Hoodwink": 2,
+   "Rattletrap": 4,
+   "Slark": 2,
+   "Tidehunter": 5,
+   "Windrunner": 1,
+   "Winter_Wyvern": 2,
+   "Wisp": 7
+  },
+  "madstoneGainedByHero": {
+   "BountyHunter": 1,
+   "EmberSpirit": 1,
+   "Hoodwink": 2,
+   "Rattletrap": 4,
+   "Slark": 2,
+   "Tidehunter": 5,
+   "Windrunner": 1,
+   "Winter_Wyvern": 2,
+   "Wisp": 7
+  }
+ },
+ "gameStats": {
+  "0": {
+   "accountId": 16497807,
+   "playerId": 0,
+   "lotusesTaken": 0,
+   "watchersTaken": 2,
+   "acquiredMadstone": 27,
+   "tormentorKills": 0,
+   "smokesUsed": 3,
+   "runePickups": 1,
+   "campsStacked": 3,
+   "observerWardsPlaced": 6,
+   "wardsDestroyed": 8,
+   "courierKills": 0,
+   "roshanKills": 0,
+   "towerKills": 0,
+   "lastHits": 29,
+   "denies": 0,
+   "stuns": 15.566334
+  },
+  "10": {
+   "accountId": 171262902,
+   "playerId": 10,
+   "lotusesTaken": 5,
+   "watchersTaken": 0,
+   "acquiredMadstone": 36,
+   "tormentorKills": 0,
+   "smokesUsed": 0,
+   "runePickups": 6,
+   "campsStacked": 7,
+   "observerWardsPlaced": 0,
+   "wardsDestroyed": 0,
+   "courierKills": 0,
+   "roshanKills": 1,
+   "towerKills": 4,
+   "lastHits": 551,
+   "denies": 18,
+   "stuns": 0
+  },
+  "12": {
+   "accountId": 312436974,
+   "playerId": 12,
+   "lotusesTaken": 0,
+   "watchersTaken": 0,
+   "acquiredMadstone": 35,
+   "tormentorKills": 0,
+   "smokesUsed": 0,
+   "runePickups": 15,
+   "campsStacked": 0,
+   "observerWardsPlaced": 2,
+   "wardsDestroyed": 7,
+   "courierKills": 0,
+   "roshanKills": 0,
+   "towerKills": 3,
+   "lastHits": 262,
+   "denies": 11,
+   "stuns": 0
+  },
+  "14": {
+   "accountId": 56351509,
+   "playerId": 14,
+   "lotusesTaken": 2,
+   "watchersTaken": 5,
+   "acquiredMadstone": 35,
+   "tormentorKills": 0,
+   "smokesUsed": 0,
+   "runePickups": 5,
+   "campsStacked": 1,
+   "observerWardsPlaced": 0,
+   "wardsDestroyed": 1,
+   "courierKills": 0,
+   "roshanKills": 0,
+   "towerKills": 2,
+   "lastHits": 346,
+   "denies": 8,
+   "stuns": 54.467728
+  },
+  "16": {
+   "accountId": 93817671,
+   "playerId": 16,
+   "lotusesTaken": 2,
+   "watchersTaken": 4,
+   "acquiredMadstone": 30,
+   "tormentorKills": 0,
+   "smokesUsed": 4,
+   "runePickups": 5,
+   "campsStacked": 4,
+   "observerWardsPlaced": 4,
+   "wardsDestroyed": 6,
+   "courierKills": 1,
+   "roshanKills": 0,
+   "towerKills": 1,
+   "lastHits": 82,
+   "denies": 6,
+   "stuns": 31.999857
+  },
+  "18": {
+   "accountId": 103735745,
+   "playerId": 18,
+   "lotusesTaken": 5,
+   "watchersTaken": 3,
+   "acquiredMadstone": 33,
+   "tormentorKills": 0,
+   "smokesUsed": 2,
+   "runePickups": 7,
+   "campsStacked": 1,
+   "observerWardsPlaced": 11,
+   "wardsDestroyed": 13,
+   "courierKills": 7,
+   "roshanKills": 0,
+   "towerKills": 0,
+   "lastHits": 26,
+   "denies": 0,
+   "stuns": 30.29971
+  },
+  "2": {
+   "accountId": 97590558,
+   "playerId": 2,
+   "lotusesTaken": 0,
+   "watchersTaken": 3,
+   "acquiredMadstone": 26,
+   "tormentorKills": 0,
+   "smokesUsed": 0,
+   "runePickups": 0,
+   "campsStacked": 1,
+   "observerWardsPlaced": 0,
+   "wardsDestroyed": 1,
+   "courierKills": 0,
+   "roshanKills": 0,
+   "towerKills": 0,
+   "lastHits": 342,
+   "denies": 5,
+   "stuns": 10.899146
+  },
+  "4": {
+   "accountId": 201358612,
+   "playerId": 4,
+   "lotusesTaken": 0,
+   "watchersTaken": 2,
+   "acquiredMadstone": 32,
+   "tormentorKills": 0,
+   "smokesUsed": 0,
+   "runePickups": 2,
+   "campsStacked": 1,
+   "observerWardsPlaced": 1,
+   "wardsDestroyed": 3,
+   "courierKills": 0,
+   "roshanKills": 0,
+   "towerKills": 0,
+   "lastHits": 296,
+   "denies": 23,
+   "stuns": 25.899757
+  },
+  "6": {
+   "accountId": 77490514,
+   "playerId": 6,
+   "lotusesTaken": 0,
+   "watchersTaken": 4,
+   "acquiredMadstone": 27,
+   "tormentorKills": 0,
+   "smokesUsed": 1,
+   "runePickups": 1,
+   "campsStacked": 7,
+   "observerWardsPlaced": 11,
+   "wardsDestroyed": 3,
+   "courierKills": 1,
+   "roshanKills": 0,
+   "towerKills": 0,
+   "lastHits": 29,
+   "denies": 0,
+   "stuns": 63.464703
+  },
+  "8": {
+   "accountId": 152962063,
+   "playerId": 8,
+   "lotusesTaken": 3,
+   "watchersTaken": 1,
+   "acquiredMadstone": 27,
+   "tormentorKills": 0,
+   "smokesUsed": 0,
+   "runePickups": 0,
+   "campsStacked": 3,
+   "observerWardsPlaced": 0,
+   "wardsDestroyed": 2,
+   "courierKills": 0,
+   "roshanKills": 0,
+   "towerKills": 0,
+   "lastHits": 324,
+   "denies": 8,
+   "stuns": 31.666353
+  }
+ },
+ "heroes": {
+  "npc_dota_hero_bounty_hunter": {
+   "watchers": 0,
+   "lamps": 5,
+   "madstones": 0,
+   "tormentorKills": 0,
+   "tormentorParticipation": 0
+  },
+  "npc_dota_hero_dark_seer": {
+   "watchers": 0,
+   "lamps": 3,
+   "madstones": 16,
+   "tormentorKills": 0,
+   "tormentorParticipation": 0
+  },
+  "npc_dota_hero_ember_spirit": {
+   "watchers": 0,
+   "lamps": 1,
+   "madstones": 11,
+   "tormentorKills": 0,
+   "tormentorParticipation": 0
+  },
+  "npc_dota_hero_hoodwink": {
+   "watchers": 1,
+   "lamps": 6,
+   "madstones": 0,
+   "tormentorKills": 0,
+   "tormentorParticipation": 0
+  },
+  "npc_dota_hero_rattletrap": {
+   "watchers": 0,
+   "lamps": 4,
+   "madstones": 1,
+   "tormentorKills": 0,
+   "tormentorParticipation": 0
+  },
+  "npc_dota_hero_slark": {
+   "watchers": 1,
+   "lamps": 2,
+   "madstones": 8,
+   "tormentorKills": 0,
+   "tormentorParticipation": 0
+  },
+  "npc_dota_hero_tidehunter": {
+   "watchers": 0,
+   "lamps": 7,
+   "madstones": 12,
+   "tormentorKills": 0,
+   "tormentorParticipation": 0
+  },
+  "npc_dota_hero_windrunner": {
+   "watchers": 0,
+   "lamps": 2,
+   "madstones": 15,
+   "tormentorKills": 0,
+   "tormentorParticipation": 0
+  },
+  "npc_dota_hero_winter_wyvern": {
+   "watchers": 0,
+   "lamps": 2,
+   "madstones": 1,
+   "tormentorKills": 0,
+   "tormentorParticipation": 0
+  },
+  "npc_dota_hero_wisp": {
+   "watchers": 0,
+   "lamps": 1,
+   "madstones": 34,
+   "tormentorKills": 0,
+   "tormentorParticipation": 0
+  }
+ },
+ "tormentorLog": null,
+ "notes": {
+  "lotus": "NOT RECOVERABLE from the combat log — no lotus pickup events exist. Needs entity-level work on CDOTA_BaseNPC_LotusPool.",
+  "tormentor": "tormentorKills = last hitter. tormentorParticipation = damaged a tormentor that then died; the combat log's assist list is empty for these, so participation is derived from damage.",
+  "watchers": "ability_capture. Distinct from ability_lamp_use, which is what the open APIs conflate it with."
+ }
+}
