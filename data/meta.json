@@ -1,17 +1,17 @@
 {
   "v": 1,
-  "generatedAt": "2026-08-21T12:54:15.504Z",
+  "generatedAt": "2026-08-21T14:17:57.285Z",
   "leagueId": 19719,
   "leagueName": "The International 2026",
   "counts": {
-    "ok": 127,
+    "ok": 128,
     "pending": 0,
     "failed": 0,
     "remade": 0,
     "unparsed": 0
   },
-  "matchCount": 127,
-  "rowCount": 1270,
+  "matchCount": 128,
+  "rowCount": 1280,
   "seriesCount": 51,
   "playerCount": 80,
   "coverage": {
